@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia 3 - Docker e Containerização</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0db7ed 0%, #384d65 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 60px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        h1 {
+            color: #0db7ed;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #384d65;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #384d65;
+            font-size: 2.2em;
+            margin: 30px 0 20px;
+        }
+        
+        h3 {
+            color: #0db7ed;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        
+        ul {
+            margin-left: 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #0db7ed, #384d65);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            line-height: 1.5;
+            white-space: pre; 
+        }
+        
+        .code-block .comment {
+            color: #6a9955;
+        }
+        
+        .code-block .keyword {
+            color: #569cd6;
+        }
+        
+        .code-block .string {
+            color: #ce9178;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #0db7ed;
+            border: 2px solid #0db7ed;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #0db7ed;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #0db7ed;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 15px;
+        }
+        
+        .icon {
+            font-size: 3em;
+            color: #0db7ed;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #0db7ed;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table th {
+            background: #0db7ed;
+            color: white;
+        }
+        
+        .docker-architecture {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(to right, #f0f8ff, #e6f4ff);
+            border-radius: 15px;
+        }
+        
+        .architecture-layer {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <div class="slide-number">1 / 30</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon">🐳</div>
+                <h1 style="border: none; font-size: 4em;">Docker</h1>
+                <h2>Containerização de Aplicações</h2>
+                <p style="font-size: 1.5em; color: #666; margin-top: 40px;">Dia 3 - Formação em Cloud Computing</p>
+                <p style="margin-top: 60px; color: #999;">Pressione → para continuar</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <div class="slide-number">2 / 30</div>
+            <h1>Agenda do Dia 3</h1>
+            <div class="highlight">
+                <h3 style="color: white;">Manhã (09:00 - 13:00)</h3>
+                <ul style="color: white;">
+                    <li>Introdução aos Containers</li>
+                    <li>Docker vs Máquinas Virtuais</li>
+                    <li>Arquitetura Docker</li>
+                    <li>Imagens e Containers</li>
+                    <li>Dockerfile</li>
+                </ul>
+            </div>
+            <div class="highlight" style="background: linear-gradient(135deg, #384d65, #0db7ed);">
+                <h3 style="color: white;">Tarde (14:00 - 18:00)</h3>
+                <ul style="color: white;">
+                    <li>Docker Compose</li>
+                    <li>Volumes e Redes</li>
+                    <li>Registry e Docker Hub</li>
+                    <li>Integração com Azure</li>
+                    <li>Laboratório Prático Completo</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: O Problema -->
+        <div class="slide">
+            <div class="slide-number">3 / 30</div>
+            <h1>O Problema: "Funciona na Minha Máquina!"</h1>
+            
+            <div class="diagram">
+                <h3>😤 Problemas Comuns no Desenvolvimento</h3>
+            </div>
+            
+            <ul>
+                <li>❌ <strong>Ambientes Inconsistentes</strong> - Dev vs Prod diferentes</li>
+                <li>❌ <strong>Dependências Conflitantes</strong> - Versões incompatíveis</li>
+                <li>❌ <strong>Configuração Manual</strong> - Processo demorado e propenso a erros</li>
+                <li>❌ <strong>Difícil Escalabilidade</strong> - Replicar ambiente é complexo</li>
+                <li>❌ <strong>Desperdício de Recursos</strong> - VMs completas para apps simples</li>
+            </ul>
+            
+            <div class="important">
+                <strong>💡 Cenário Real:</strong> Uma aplicação Python que funciona perfeitamente no laptop do desenvolvedor falha em produção devido a diferenças nas versões de bibliotecas e configurações do sistema operativo.
+            </div>
+            <img src="./works-on-my-machine.jpg" alt="Funciona na Minha Máquina" style="max-width: 35%; border-radius: 10px;">
+            <img src="./docker-vs-vm.png" alt="Docker vs VM" style="max-width: 55%; border-radius: 10px; margin-left: 20px;">
+        </div>
+
+        <!-- Slide 4: A Solução Docker -->
+        <div class="slide">
+            <div class="slide-number">4 / 30</div>
+            <h1>Docker: A Solução para Portabilidade</h1>
+            
+            <div class="diagram">
+                <div class="icon">🐳</div>
+                <h2>Build Once, Run Anywhere</h2>
+            </div>
+            
+            <h3>O que é Docker?</h3>
+            <p>Plataforma de containerização que empacota aplicações e suas dependências em containers portáteis.</p>
+            
+            <h3>Benefícios Principais:</h3>
+            <ul>
+                <li>✅ <strong>Portabilidade</strong> - Funciona em qualquer lugar</li>
+                <li>✅ <strong>Consistência</strong> - Mesmo ambiente em Dev/Test/Prod</li>
+                <li>✅ <strong>Eficiência</strong> - Containers são leves (MB vs GB)</li>
+                <li>✅ <strong>Velocidade</strong> - Iniciam em segundos</li>
+                <li>✅ <strong>Isolamento</strong> - Apps não interferem entre si</li>
+                <li>✅ <strong>Escalabilidade</strong> - Fácil replicação horizontal</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Containers vs VMs -->
+        <div class="slide">
+            <div class="slide-number">5 / 30</div>
+            <h1>Containers vs Máquinas Virtuais</h1>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspecto</th>
+                    <th>Containers</th>
+                    <th>Máquinas Virtuais</th>
+                </tr>
+                <tr>
+                    <td><strong>Tamanho</strong></td>
+                    <td>MB (leves)</td>
+                    <td>GB (pesadas)</td>
+                </tr>
+                <tr>
+                    <td><strong>Tempo de Início</strong></td>
+                    <td>Segundos</td>
+                    <td>Minutos</td>
+                </tr>
+                <tr>
+                    <td><strong>Performance</strong></td>
+                    <td>Nativa</td>
+                    <td>Overhead de virtualização</td>
+                </tr>
+                <tr>
+                    <td><strong>Isolamento</strong></td>
+                    <td>Processo</td>
+                    <td>Sistema Operativo completo</td>
+                </tr>
+                <tr>
+                    <td><strong>Portabilidade</strong></td>
+                    <td>Muito alta</td>
+                    <td>Limitada</td>
+                </tr>
+                <tr>
+                    <td><strong>Recursos</strong></td>
+                    <td>Compartilha kernel do host</td>
+                    <td>Recursos dedicados</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>Quando usar cada um?</strong><br>
+                • <strong>Containers:</strong> Microserviços, CI/CD, aplicações cloud-native, aplicações legacy<br>
+                • <strong>VMs:</strong> Isolamento completo, diferentes OS, aplicações legacy
+            </div>
+        </div>
+
+        <!-- Slide 6: Arquitetura Docker -->
+        <div class="slide">
+            <div class="slide-number">6 / 30</div>
+            <h1>Arquitetura Docker</h1>
+            
+            <div class="docker-architecture">
+                <div class="architecture-layer">
+                    <h3>Docker Client</h3>
+                    <p>CLI / API</p>
+                    <code>docker run</code>
+                </div>
+                <div style="font-size: 2em;">→</div>
+                <div class="architecture-layer">
+                    <h3>Docker Daemon</h3>
+                    <p>dockerd</p>
+                    <p>Gerencia containers</p>
+                </div>
+                <div style="font-size: 2em;">→</div>
+                <div class="architecture-layer">
+                    <h3>Container Runtime</h3>
+                    <p>containerd / runc</p>
+                    <p>Executa containers</p>
+                </div>
+            </div>
+            
+            <h3>Componentes Principais:</h3>
+            <ul>
+                <li>🖥️ <strong>Docker Client</strong> - Interface de comando (docker CLI)</li>
+                <li>⚙️ <strong>Docker Daemon</strong> - Serviço que gerencia Docker</li>
+                <li>📦 <strong>Images</strong> - Templates read-only para containers</li>
+                <li>🏃 <strong>Containers</strong> - Instâncias executáveis de imagens</li>
+                <li>🏪 <strong>Registry</strong> - Repositório de imagens (Docker Hub)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Conceitos Fundamentais -->
+        <div class="slide">
+            <div class="slide-number">7 / 30</div>
+            <h1>Conceitos Fundamentais</h1>
+            <h3>📄 Dockerfile</h3>
+            <ul>
+                <li>Conjunto de instruções para criar uma imagem Docker</li>
+                <li>Especifica a imagem base (ex.: <code>FROM ubuntu:24.04</code>).</li>
+                <li>Define comandos para instalar dependências (<code>RUN apt-get install python</code>).</li>
+                <li>Define o comando padrão para execução (<code>CMD ["python", "app.py"]</code>).</li>
+            </ul>
+            <h3>📦 Imagem Docker</h3>
+            <ul>
+                <li>Template read-only com instruções para criar container</li>
+                <li>Construída em camadas (layers)</li>
+                <li>Cada instrução no Dockerfile cria uma camada</li>
+                <li>Camadas são cacheadas e reutilizadas</li>
+            </ul>
+            <h3>🏃 Container</h3>
+            <ul>
+                <li>Instância executável de uma imagem</li>
+                <li>Adiciona camada read-write sobre a imagem</li>
+                <li>Pode ser iniciado, parado, movido e deletado</li>
+                <li>Isolado mas pode comunicar através de redes</li>
+            </ul>
+            <h3>🏪 Registry</h3>
+            <ul>
+                <li>Servidor que armazena imagens Docker</li>
+                <li><strong>Docker Hub</strong> - Registry público padrão</li>
+                <li>Podem ter registries privados (Azure ACR, AWS ECR)</li>
+                <li>Outros registries públicos: GitHub e GitLab Container Registry</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Comandos Essenciais -->
+        <div class="slide">
+            <div class="slide-number">8 / 30</div>
+            <h1>Comandos Docker Essenciais</h1>
+            
+            <h2>Gestão de Imagens</h2>
+            <div class="code-block">
+<span class="comment"># Baixar imagem</span>
+docker pull nginx:latest
+
+<span class="comment"># Listar imagens</span>
+docker images
+
+<span class="comment"># Remover imagem</span>
+docker rmi nginx:latest
+
+<span class="comment"># Construir imagem</span>
+docker build -t minha-app:v1 .
+            </div>
+            
+            <h2>Gestão de Containers</h2>
+            <div class="code-block">
+<span class="comment"># Executar container</span>
+docker run -d -p 80:80 --name web nginx
+
+<span class="comment"># Listar containers</span>
+docker ps        <span class="comment"># Apenas em execução</span>
+docker ps -a     <span class="comment"># Todos</span>
+
+<span class="comment"># Parar/Iniciar container</span>
+docker stop web
+docker start web
+
+<span class="comment"># Remover container</span>
+docker rm web
+            </div>
+        </div>
+
+        <!-- Slide 9: Docker Run Detalhado -->
+        <div class="slide">
+            <div class="slide-number">9 / 30</div>
+            <h1>Docker Run - Opções Importantes</h1>
+            
+            <div class="code-block">
+docker run [OPTIONS] IMAGE [COMMAND]
+            </div>
+            
+            <h3>Opções Mais Usadas:</h3>
+            <div class="code-block">
+<span class="comment"># Modo detached (background)</span>
+docker run <span class="keyword">-d</span> nginx
+
+<span class="comment"># Mapear portas host:container</span>
+docker run <span class="keyword">-p 8080:80</span> nginx
+
+<span class="comment"># Nomear container</span>
+docker run <span class="keyword">--name</span> meu-nginx nginx
+
+<span class="comment"># Variáveis de ambiente</span>
+docker run <span class="keyword">-e</span> NODE_ENV=production node-app
+
+<span class="comment"># Montar volumes</span>
+docker run <span class="keyword">-v</span> /host/data:/container/data app
+
+<span class="comment"># Modo interativo com terminal</span>
+docker run <span class="keyword">-it</span> ubuntu bash
+
+<span class="comment"># Remover após parar</span>
+docker run <span class="keyword">--rm</span> alpine echo "Hello"
+
+<span class="comment"># Limitar recursos</span>
+docker run <span class="keyword">--memory="512m" --cpus="0.5"</span> app
+            </div>
+        </div>
+
+        <!-- Slide 10: Dockerfile -->
+        <div class="slide">
+            <div class="slide-number">10 / 30</div>
+            <h1>Dockerfile - Criando Imagens</h1>
+            
+            <h3>O que é Dockerfile?</h3>
+            <p>Ficheiro de texto com instruções para construir uma imagem Docker.</p>
+            
+            <h3>Estrutura Básica:</h3>
+            <div class="code-block">
+<span class="comment"># Imagem base</span>
+<span class="keyword">FROM</span> node:18-alpine
+
+<span class="comment"># Metadados</span>
+<span class="keyword">LABEL</span> maintainer="email@exemplo.com"
+
+<span class="comment"># Diretório de trabalho</span>
+<span class="keyword">WORKDIR</span> /app
+
+<span class="comment"># Copiar ficheiros</span>
+<span class="keyword">COPY</span> package*.json ./
+
+<span class="comment"># Executar comandos</span>
+<span class="keyword">RUN</span> npm install
+
+<span class="comment"># Copiar código</span>
+<span class="keyword">COPY</span> . .
+
+<span class="comment"># Expor porta</span>
+<span class="keyword">EXPOSE</span> 3000
+
+<span class="comment"># Comando padrão</span>
+<span class="keyword">CMD</span> ["node", "server.js"]
+            </div>
+        </div>
+
+        <!-- Slide 11: Instruções Dockerfile -->
+        <div class="slide">
+            <div class="slide-number">11 / 30</div>
+            <h1>Instruções Dockerfile Principais</h1>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Instrução</th>
+                    <th>Descrição</th>
+                    <th>Exemplo</th>
+                </tr>
+                <tr>
+                    <td><strong>FROM</strong></td>
+                    <td>Define imagem base</td>
+                    <td>FROM ubuntu:22.04</td>
+                </tr>
+                <tr>
+                    <td><strong>RUN</strong></td>
+                    <td>Executa comando no build</td>
+                    <td>RUN apt-get update</td>
+                </tr>
+                <tr>
+                    <td><strong>COPY</strong></td>
+                    <td>Copia ficheiros do host</td>
+                    <td>COPY app.js /app/</td>
+                </tr>
+                <tr>
+                    <td><strong>ADD</strong></td>
+                    <td>Como COPY mas extrai arquivos</td>
+                    <td>ADD app.tar.gz /app/</td>
+                </tr>
+                <tr>
+                    <td><strong>WORKDIR</strong></td>
+                    <td>Define diretório de trabalho</td>
+                    <td>WORKDIR /app</td>
+                </tr>
+                <tr>
+                    <td><strong>ENV</strong></td>
+                    <td>Define variável de ambiente</td>
+                    <td>ENV NODE_ENV=production</td>
+                </tr>
+                <tr>
+                    <td><strong>EXPOSE</strong></td>
+                    <td>Documenta porta</td>
+                    <td>EXPOSE 8080</td>
+                </tr>
+                <tr>
+                    <td><strong>CMD</strong></td>
+                    <td>Comando padrão</td>
+                    <td>CMD ["npm", "start"]</td>
+                </tr>
+                <tr>
+                    <td><strong>ENTRYPOINT</strong></td>
+                    <td>Executável principal</td>
+                    <td>ENTRYPOINT ["python"]</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 12: Multi-stage Build -->
+        <div class="slide">
+            <div class="slide-number">12 / 30</div>
+            <h1>Multi-stage Build</h1>
+            
+            <h3>Otimização de Imagens</h3>
+            <p>Reduz tamanho final usando múltiplos estágios de build.</p>
+            
+            <div class="code-block">
+<span class="comment"># Estágio 1: Build</span>
+<span class="keyword">FROM</span> node:18 <span class="keyword">AS</span> builder
+<span class="keyword">WORKDIR</span> /app
+<span class="keyword">COPY</span> package*.json ./
+<span class="keyword">RUN</span> npm ci
+<span class="keyword">COPY</span> . .
+<span class="keyword">RUN</span> npm run build
+
+<span class="comment"># Estágio 2: Produção</span>
+<span class="keyword">FROM</span> node:18-alpine
+<span class="keyword">WORKDIR</span> /app
+<span class="keyword">COPY</span> --from=builder /app/dist ./dist
+<span class="keyword">COPY</span> --from=builder /app/node_modules ./node_modules
+<span class="keyword">EXPOSE</span> 3000
+<span class="keyword">CMD</span> ["node", "dist/server.js"]
+            </div>
+            
+            <div class="highlight">
+                <h3 style="color: white;">Vantagens:</h3>
+                <ul style="color: white;">
+                    <li>Imagem final menor (sem ferramentas de build)</li>
+                    <li>Mais segura (menos superfície de ataque)</li>
+                    <li>Build reproduzível</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Docker Compose -->
+        <div class="slide">
+            <div class="slide-number">13 / 30</div>
+            <h1>Docker Compose</h1>
+            
+            <div class="diagram">
+                <div class="icon">🎼</div>
+                <h2>Orquestração Multi-Container</h2>
+            </div>
+            
+            <h3>O que é Docker Compose?</h3>
+            <p>Ferramenta para definir e executar aplicações Docker multi-container usando YAML.</p>
+            
+            <h3>Casos de Uso:</h3>
+            <ul>
+                <li>📱 <strong>Aplicações Multi-tier</strong> - Frontend, Backend, Database</li>
+                <li>🔧 <strong>Ambientes de Desenvolvimento</strong> - Stack completa local</li>
+                <li>🧪 <strong>Testes de Integração</strong> - Ambiente isolado</li>
+                <li>🚀 <strong>Prototipagem Rápida</strong> - Deploy de stack completa</li>
+            </ul>
+            
+            <div class="important">
+                <strong>💡 Benefício Principal:</strong> Um comando para iniciar toda a stack!<br>
+                <code>docker-compose up</code>
+            </div>
+        </div>
+
+        <!-- Slide 14: Docker Compose Exemplo -->
+        <div class="slide">
+            <div class="slide-number">14 / 30</div>
+            <h1>Docker Compose - Exemplo Prático</h1>
+            
+            <div class="code-block">
+<span class="comment"># docker-compose.yml</span>
+<span class="keyword">version:</span> '3.8'
+
+<span class="keyword">services:</span>
+  <span class="keyword">web:</span>
+    <span class="keyword">image:</span> nginx:alpine
+    <span class="keyword">ports:</span>
+      - "80:80"
+    <span class="keyword">volumes:</span>
+      - ./html:/usr/share/nginx/html
+    <span class="keyword">depends_on:</span>
+      - api
+
+  <span class="keyword">api:</span>
+    <span class="keyword">build:</span> ./api
+    <span class="keyword">ports:</span>
+      - "3000:3000"
+    <span class="keyword">environment:</span>
+      - DB_HOST=database
+      - DB_PORT=5432
+    <span class="keyword">depends_on:</span>
+      - database
+
+  <span class="keyword">database:</span>
+    <span class="keyword">image:</span> postgres:15
+    <span class="keyword">environment:</span>
+      - POSTGRES_PASSWORD=secret
+    <span class="keyword">volumes:</span>
+      - db_data:/var/lib/postgresql/data
+
+<span class="keyword">volumes:</span>
+  db_data:
+            </div>
+        </div>
+
+        <!-- Slide 15: Comandos Docker Compose -->
+        <div class="slide">
+            <div class="slide-number">15 / 30</div>
+            <h1>Comandos Docker Compose</h1>
+            
+            <div class="code-block">
+<span class="comment"># Iniciar serviços</span>
+docker-compose up           <span class="comment"># Foreground</span>
+docker-compose up -d        <span class="comment"># Background</span>
+
+<span class="comment"># Parar serviços</span>
+docker-compose down         <span class="comment"># Para e remove</span>
+docker-compose stop         <span class="comment"># Apenas para</span>
+
+<span class="comment"># Ver logs</span>
+docker-compose logs         <span class="comment"># Todos serviços</span>
+docker-compose logs -f api  <span class="comment"># Seguir logs de um serviço</span>
+
+<span class="comment"># Listar serviços</span>
+docker-compose ps
+
+<span class="comment"># Executar comando</span>
+docker-compose exec api bash
+
+<span class="comment"># Build</span>
+docker-compose build        <span class="comment"># Build all</span>
+docker-compose build api    <span class="comment"># Build específico</span>
+
+<span class="comment"># Escalar serviço</span>
+docker-compose up -d --scale api=3
+            </div>
+        </div>
+
+        <!-- Slide 16: Volumes Docker -->
+        <div class="slide">
+            <div class="slide-number">16 / 30</div>
+            <h1>Volumes - Persistência de Dados</h1>
+            
+            <h3>Tipos de Volumes:</h3>
+            
+            <div class="highlight">
+                <h3 style="color: white;">1. Named Volumes</h3>
+                <p style="color: white;">Gerenciados pelo Docker, melhor para produção</p>
+                <code style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    docker run --tmpfs /tmp app
+                </code>
+            </div>
+            
+            <h3>Comandos de Volumes:</h3>
+            <div class="code-block">
+docker volume create mydata
+docker volume ls
+docker volume inspect mydata
+docker volume rm mydata
+docker volume prune  <span class="comment"># Remove não utilizados</span>
+            </div>
+        </div>
+
+        <!-- Slide 17: Redes Docker -->
+        <div class="slide">
+            <div class="slide-number">17 / 30</div>
+            <h1>Redes Docker</h1>
+            
+            <h3>Tipos de Rede:</h3>
+            <ul>
+                <li>🌉 <strong>bridge</strong> - Rede padrão para containers standalone</li>
+                <li>🏠 <strong>host</strong> - Usa rede do host diretamente</li>
+                <li>❌ <strong>none</strong> - Sem rede</li>
+                <li>🔧 <strong>custom</strong> - Redes definidas pelo usuário</li>
+            </ul>
+            
+            <div class="code-block">
+<span class="comment"># Criar rede personalizada</span>
+docker network create myapp-network
+
+<span class="comment"># Executar container na rede</span>
+docker run -d --network myapp-network --name db mysql
+docker run -d --network myapp-network --name app myapp
+
+<span class="comment"># Containers podem comunicar por nome</span>
+docker exec app ping db
+
+<span class="comment"># Listar redes</span>
+docker network ls
+
+<span class="comment"># Inspeccionar rede</span>
+docker network inspect myapp-network
+            </div>
+        </div>
+
+        <!-- Slide 18: Docker Hub -->
+        <div class="slide">
+            <div class="slide-number">18 / 30</div>
+            <h1>Docker Hub e Registries</h1>
+            
+            <div class="diagram">
+                <div class="icon">🏪</div>
+                <h2>Repositório Central de Imagens</h2>
+            </div>
+            
+            <h3>Workflow com Docker Hub:</h3>
+            <div class="code-block">
+<span class="comment"># 1. Login</span>
+docker login
+
+<span class="comment"># 2. Tag imagem com username/repo</span>
+docker tag myapp:v1 username/myapp:v1
+
+<span class="comment"># 3. Push para Docker Hub</span>
+docker push username/myapp:v1
+
+<span class="comment"># 4. Pull de qualquer lugar</span>
+docker pull username/myapp:v1
+            </div>
+            
+            <h3>Registries Privados:</h3>
+            <ul>
+                <li>🔷 <strong>Azure Container Registry (ACR)</strong></li>
+                <li>🔶 <strong>AWS Elastic Container Registry (ECR)</strong></li>
+                <li>🔵 <strong>Google Container Registry (GCR)</strong></li>
+                <li>🏢 <strong>Harbor</strong> - Self-hosted</li>
+            </ul>
+        </div>
+
+        <!-- Slide 19: Segurança em Docker -->
+        <div class="slide">
+            <div class="slide-number">19 / 30</div>
+            <h1>Segurança em Docker</h1>
+            
+            <h3>🔒 Boas Práticas de Segurança:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">1. Usar Imagens Oficiais e Verificadas</h4>
+                <p style="color: white; font-size: 16px;">- Prefira sempre imagens oficiais e minimalistas para reduzir a superfície de ataque.</p>
+                <code style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    docker pull nginx:alpine  # Oficial e minimalista
+                </code>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #384d65, #0db7ed);">
+                <h4 style="color: white;">2. Não Executar como Root</h4>
+                <p style="color: white; font-size: 16px;">Defina um usuário não-root no Dockerfile para evitar privilégios desnecessários.</p>
+                <code style="background: rgba(0,0,0,0.3);-  padding: 10px; border-radius: 5px;">
+                    USER nonroot  # No Dockerfile
+                </code>
+            </div>
+            
+            <div class="highlight">
+                <h4 style="color: white; font-size: 16px;">3. Scan de Vulnerabilidades</h4>
+                <p style="color: white; font-size: 16px;">- Utilize ferramentas de segurança para identificar vulnerabilidades em suas imagens.</p>
+                <code style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    docker scout cves myapp:latest
+                </code>
+            </div>
+            
+            <h3>Dockerfile Seguro:</h3>
+            <div class="code-block">
+<span class="keyword">FROM</span> node:18-alpine
+<span class="keyword">RUN</span> addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+<span class="keyword">USER</span> nodejs
+<span class="keyword">COPY</span> --chown=nodejs:nodejs . .
+            </div>
+        </div>
+
+        <!-- Slide 20: Azure Container Registry -->
+        <div class="slide">
+            <div class="slide-number">20 / 30</div>
+            <h1>Azure Container Registry (ACR)</h1>
+            
+            <h3>Registry Privado no Azure</h3>
+            
+            <div class="code-block">
+<span class="comment"># Criar ACR</span>
+az acr create \
+  --resource-group myRG \
+  --name myacr \
+  --sku Basic
+
+<span class="comment"># Login no ACR</span>
+az acr login --name myacr
+
+<span class="comment"># Tag para ACR</span>
+docker tag myapp:v1 myacr.azurecr.io/myapp:v1
+
+<span class="comment"># Push para ACR</span>
+docker push myacr.azurecr.io/myapp:v1
+
+<span class="comment"># Pull do ACR</span>
+docker pull myacr.azurecr.io/myapp:v1
+            </div>
+            
+            <h3>Vantagens do ACR:</h3>
+            <ul>
+                <li>✅ Integração nativa com Azure</li>
+                <li>✅ Geo-replicação disponível</li>
+                <li>✅ Scan de segurança integrado</li>
+                <li>✅ Webhook e automação</li>
+            </ul>
+        </div>
+
+        <!-- Slide 21: Azure Container Instances -->
+        <div class="slide">
+            <div class="slide-number">21 / 30</div>
+            <h1>Azure Container Instances (ACI)</h1>
+            
+            <div class="diagram">
+                <div class="icon">⚡</div>
+                <h2>Containers Serverless no Azure</h2>
+            </div>
+            
+            <h3>Deploy Rápido sem Infraestrutura:</h3>
+            <div class="code-block">
+<span class="comment"># Deploy direto do Docker Hub</span>
+az container create \
+  --resource-group myRG \
+  --name mycontainer \
+  --image nginx \
+  --dns-name-label myapp \
+  --ports 80
+
+<span class="comment"># Deploy do ACR</span>
+az container create \
+  --resource-group myRG \
+  --name myapp \
+  --image myacr.azurecr.io/myapp:v1 \
+  --registry-username $(az acr credential show --name myacr --query username -o tsv) \
+  --registry-password $(az acr credential show --name myacr --query passwords[0].value -o tsv)
+            </div>
+            
+            <h3>Casos de Uso:</h3>
+            <ul>
+                <li>🚀 Tarefas batch e jobs</li>
+                <li>🧪 Ambientes de teste temporários</li>
+                <li>📊 Processamento de dados on-demand</li>
+            </ul>
+        </div>
+
+        <!-- Slide 22: Docker em Produção -->
+        <div class="slide">
+            <div class="slide-number">22 / 30</div>
+            <h1>Docker em Produção</h1>
+            
+            <h3>📋 Checklist para Produção:</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="highlight">
+                    <h4 style="color: white;">Imagens</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>✓ Multi-stage build</li>
+                        <li>✓ Imagens minimalistas (Alpine)</li>
+                        <li>✓ Scan de vulnerabilidades</li>
+                        <li>✓ Tags específicas (não latest)</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #384d65, #0db7ed);">
+                    <h4 style="color: white;">Segurança</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>✓ Usuário não-root</li>
+                        <li>✓ Secrets management</li>
+                        <li>✓ Network policies</li>
+                        <li>✓ Read-only filesystem</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #384d65, #0db7ed);">
+                    <h4 style="color: white;">Performance</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>✓ Limites de recursos</li>
+                        <li>✓ Health checks</li>
+                        <li>✓ Graceful shutdown</li>
+                        <li>✓ Cache de layers</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight">
+                    <h4 style="color: white;">Monitorização</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>✓ Logging centralizado</li>
+                        <li>✓ Métricas e alertas</li>
+                        <li>✓ Distributed tracing</li>
+                        <li>✓ Container insights</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Troubleshooting -->
+        <div class="slide">
+            <div class="slide-number">23 / 30</div>
+            <h1>Troubleshooting Docker</h1>
+            
+            <h3>🔍 Comandos de Diagnóstico:</h3>
+            
+            <div class="code-block">
+<span class="comment"># Ver logs do container</span>
+docker logs container_name
+docker logs -f --tail 50 container_name
+
+<span class="comment"># Executar comando no container</span>
+docker exec -it container_name bash
+docker exec container_name ps aux
+
+<span class="comment"># Inspeccionar container</span>
+docker inspect container_name
+
+<span class="comment"># Ver processos</span>
+docker top container_name
+
+<span class="comment"># Estatísticas em tempo real</span>
+docker stats
+
+<span class="comment"># Ver mudanças no filesystem</span>
+docker diff container_name
+
+<span class="comment"># Copiar ficheiros para debug</span>
+docker cp container_name:/path/to/file ./local_file
+            </div>
+            
+            <h3>Problemas Comuns:</h3>
+            <ul>
+                <li>❌ <strong>Container exits immediately</strong> → Check logs e CMD</li>
+                <li>❌ <strong>Cannot connect</strong> → Verificar port mapping e firewall</li>
+                <li>❌ <strong>Permission denied</strong> → User permissions e volumes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 24: Docker Swarm vs Kubernetes -->
+        <div class="slide">
+            <div class="slide-number">24 / 30</div>
+            <h1>Orquestração: Swarm vs Kubernetes</h1>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspecto</th>
+                    <th>Docker Swarm</th>
+                    <th>Kubernetes</th>
+                </tr>
+                <tr>
+                    <td><strong>Complexidade</strong></td>
+                    <td>Simples</td>
+                    <td>Complexo</td>
+                </tr>
+                <tr>
+                    <td><strong>Learning Curve</strong></td>
+                    <td>Baixa</td>
+                    <td>Alta</td>
+                </tr>
+                <tr>
+                    <td><strong>Funcionalidades</strong></td>
+                    <td>Básicas</td>
+                    <td>Avançadas</td>
+                </tr>
+                <tr>
+                    <td><strong>Comunidade</strong></td>
+                    <td>Menor</td>
+                    <td>Enorme</td>
+                </tr>
+                <tr>
+                    <td><strong>Auto-scaling</strong></td>
+                    <td>Manual</td>
+                    <td>Automático</td>
+                </tr>
+                <tr>
+                    <td><strong>Uso Ideal</strong></td>
+                    <td>Projetos pequenos/médios</td>
+                    <td>Projetos grandes/enterprise</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>💡 Recomendação:</strong> Para estudo, comece com Docker Compose, evolua para Kubernetes com minikube ou k3s rodando localmente ou Kubernetes em um cloud provider.
+            </div>
+        </div>
+
+        <!-- Slide 25: Casos de Uso Reais -->
+        <div class="slide">
+            <div class="slide-number">25 / 30</div>
+            <h1>Casos de Uso Reais em Angola</h1>
+            
+            <h3>🏦 Sector Bancário</h3>
+            <ul>
+                <li>Microserviços para APIs bancárias</li>
+                <li>Ambientes isolados para testes de compliance</li>
+                <li>Deploy rápido de novas funcionalidades</li>
+            </ul>
+            
+            <h3>📱 Telecomunicações</h3>
+            <ul>
+                <li>Processamento de dados em batch</li>
+                <li>APIs de integração com parceiros</li>
+                <li>Análise de tráfego e billing</li>
+            </ul>
+            
+            <h3>🏢 Governo e Serviços Públicos</h3>
+            <ul>
+                <li>Portais de serviços ao cidadão</li>
+                <li>Sistemas de gestão documental</li>
+                <li>Integração de sistemas legacy</li>
+            </ul>
+            
+            <div class="highlight">
+                <h4 style="color: white;">💡 Benefícios para Angola:</h4>
+                <ul style="color: white;">
+                    <li>Redução de custos de infraestrutura</li>
+                    <li>Maior agilidade no desenvolvimento</li>
+                    <li>Facilita trabalho remoto de equipas</li>
+                    <li>Preparação para transformação digital</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 26: Exercício Prático -->
+        <div class="slide">
+            <div class="slide-number">26 / 30</div>
+            <h1>Exercício Prático</h1>
+            
+            <h3>🎯 Desafio: Deploy de Aplicação MEAN Stack</h3>
+            
+            <p>Criar ambiente completo com:</p>
+            <ul>
+                <li>MongoDB (Database)</li>
+                <li>Express + Node.js (Backend API)</li>
+                <li>Angular (Frontend)</li>
+                <li>Nginx (Reverse Proxy)</li>
+            </ul>
+            
+            <h3>Requisitos:</h3>
+            <ol>
+                <li>Usar Docker Compose</li>
+                <li>Implementar volumes para persistência</li>
+                <li>Configurar rede isolada</li>
+                <li>Variáveis de ambiente para configuração</li>
+                <li>Health checks em todos serviços</li>
+                <li>Push para ACR</li>
+                <li>Deploy em ACI</li>
+            </ol>
+            
+            <div class="important">
+                <strong>⏱️ Tempo:</strong> 2 horas<br>
+                <strong>📚 Recursos:</strong> Usar documentação oficial e cheat sheets
+            </div>
+        </div>
+
+        <!-- Slide 27: Recursos e Links -->
+        <div class="slide">
+            <div class="slide-number">27 / 30</div>
+            <h1>Recursos e Documentação</h1>
+            
+            <h3>📚 Documentação Oficial</h3>
+            <ul>
+                <li>🔗 <strong>Docker Docs:</strong> docs.docker.com</li>
+                <li>🔗 <strong>Docker Hub:</strong> hub.docker.com</li>
+                <li>🔗 <strong>Docker Compose:</strong> docs.docker.com/compose</li>
+                <li>🔗 <strong>Best Practices:</strong> docs.docker.com/develop/dev-best-practices</li>
+            </ul>
+            
+            <h3>🎓 Cursos e Tutoriais</h3>
+            <ul>
+                <li>Docker Mastery (Udemy)</li>
+                <li>Play with Docker (Online Labs)</li>
+                <li>Katacoda Docker Scenarios</li>
+            </ul>
+            
+            <h3>🛠️ Ferramentas Úteis</h3>
+            <ul>
+                <li><strong>Dive</strong> - Analisar layers de imagens</li>
+                <li><strong>Portainer</strong> - UI para gestão Docker</li>
+                <li><strong>Hadolint</strong> - Linter para Dockerfile</li>
+                <li><strong>Docker Slim</strong> - Otimizar imagens</li>
+            </ul>
+        </div>
+
+        <!-- Slide 28: Resumo -->
+        <div class="slide">
+            <div class="slide-number">28 / 30</div>
+            <h1>Resumo do Dia</h1>
+            
+            <h3>✅ O que Aprendemos:</h3>
+            <ul>
+                <li>Conceitos fundamentais de containerização</li>
+                <li>Diferença entre Containers e VMs</li>
+                <li>Arquitetura e componentes Docker</li>
+                <li>Criar imagens com Dockerfile</li>
+                <li>Orquestrar com Docker Compose</li>
+                <li>Volumes e redes</li>
+                <li>Integração com Azure (ACR e ACI)</li>
+                <li>Boas práticas de segurança</li>
+            </ul>
+            
+            <h3>🎯 Próximos Passos:</h3>
+            <ul>
+                <li>Praticar com projetos pessoais</li>
+                <li>Explorar Docker Swarm</li>
+                <li>Preparar para Kubernetes (amanhã!)</li>
+                <li>Implementar CI/CD com Docker</li>
+            </ul>
+        </div>
+
+        <!-- Slide 29: Q&A -->
+        <div class="slide">
+            <div class="slide-number">29 / 30</div>
+            <h1>Perguntas e Respostas</h1>
+            <div class="icon-container" style="text-align: center;">
+                <div class="icon" style="font-size: 5em;">💬</div>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60%;">
+                <h2>Tempo para Dúvidas</h2>
+                <p style="margin-top: 30px; font-size: 1.3em;">Quais são as vossas dúvidas sobre Docker?</p>
+                
+                <div class="highlight" style="margin-top: 40px;">
+                    <h3 style="color: white;">Tópicos Comuns:</h3>
+                    <ul style="color: white;">
+                        <li>Docker em produção</li>
+                        <li>Migração de aplicações existentes</li>
+                        <li>Integração com CI/CD</li>
+                        <li>Custos e licenciamento</li>
+                        <li>Docker Desktop vs Docker Engine</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 30: Fim -->
+        <div class="slide">
+            <div class="slide-number">30 / 30</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon" style="font-size: 5em;">🐳</div>
+                <h1 style="border: none;">Obrigado!</h1>
+                <h2>Agora sabemos um pouco mais sobre Docker! 🎉</h2>
+                <p style="margin-top: 40px; font-size: 1.3em;">
+                    Amanhã: <strong>Dia 4 - Terraform</strong><br>
+                    Infrastructure as Code
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+        <button onclick="previousSlide()">← Anterior</button>
+        <button onclick="nextSlide()">Próximo →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+    </script>
+</body>
+</html>

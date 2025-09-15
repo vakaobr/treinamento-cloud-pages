@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia 1 - Fundamentos de Cloud Computing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 60px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        h1 {
+            color: #764ba2;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin: 30px 0 20px;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        
+        ul {
+            margin-left: 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #667eea;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f5f5ff;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9ff;
+            border-radius: 15px;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+        }
+        
+        .icon {
+            font-size: 3em;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            white-space: pre; 
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <div class="slide-number">1 / 20</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon">☁️</div>
+                <h1 style="border: none; font-size: 4em;">Fundamentos de Cloud Computing</h1>
+                <h2>Transformação Digital na Infraestrutura de TI</h2>
+                <p style="font-size: 1.5em; color: #666; margin-top: 40px;">Dia 1 - Formação em Cloud Computing</p>
+                <p style="margin-top: 60px; color: #999;">Pressione → para continuar</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <div class="slide-number">2 / 20</div>
+            <h1>Agenda do Dia 1</h1>
+            <div class="highlight">
+                <h3 style="color: white;">Manhã (09:00 - 13:00)</h3>
+                <ul style="color: white;">
+                    <li>Introdução à Cloud Computing</li>
+                    <li>Modelos de Serviço e Implementação</li>
+                    <li>Microsoft Azure - Conceitos Fundamentais</li>
+                </ul>
+            </div>
+            <div class="highlight" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                <h3 style="color: white;">Tarde (14:00 - 18:00)</h3>
+                <ul style="color: white;">
+                    <li>Laboratório: Configuração da Conta Azure</li>
+                    <li>Navegação no Portal Azure</li>
+                    <li>Criação de Recursos Básicos</li>
+                    <li>Introdução ao Networking no Azure</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: O que é Cloud Computing -->
+        <div class="slide">
+            <div class="slide-number">3 / 20</div>
+            <h1>O que é Cloud Computing?</h1>
+            <div class="diagram">
+                <div class="icon">🌐</div>
+            </div>
+            <p><strong>Definição:</strong> Cloud Computing é a entrega de serviços de computação através da Internet, incluindo (mas não se limitando a): Servidores e desktops virtualizados, armazenamento, bases de dados, redes, software, agentes/modelos de IA, zonas DNS e ferramentas de análise, etc.</p>
+            
+            <h3>Características Principais:</h3>
+            <ul>
+                <li>✅ <strong>Self-service sob demanda</strong> - Provisione recursos quando necessário</li>
+                <li>✅ <strong>Acesso amplo à rede</strong> - Acessível de qualquer lugar</li>
+                <li>✅ <strong>Pool de recursos</strong> - Recursos partilhados entre múltiplos clientes</li>
+                <li>✅ <strong>Elasticidade rápida</strong> - Escalar para mais ou menos recursos conforme necessário</li>
+                <li>✅ <strong>Serviço medido</strong> - Pague apenas pelo que usa</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Evolução da Infraestrutura -->
+        <div class="slide">
+            <div class="slide-number">4 / 20</div>
+            <h1>Evolução da Infraestrutura de TI</h1>
+            <div class="diagram" style="background: linear-gradient(to right, #f5f5ff, #e8e8ff);">
+                <h3>📦 On-Premises → 🖥️ Virtualização → ☁️ Cloud</h3>
+            </div>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspecto</th>
+                    <th>On-Premises</th>
+                    <th>Virtualização</th>
+                    <th>Cloud</th>
+                </tr>
+                <tr>
+                    <td><strong>Investimento</strong></td>
+                    <td>CAPEX* elevado</td>
+                    <td>CAPEX* médio</td>
+                    <td>OPEX** (pay-as-you-go)</td>
+                </tr>
+                <tr>
+                    <td><strong>Escalabilidade</strong></td>
+                    <td>Limitada e lenta</td>
+                    <td>Melhorada</td>
+                    <td>Ilimitada e instantânea</td>
+                </tr>
+                <tr>
+                    <td><strong>Manutenção</strong></td>
+                    <td>Total responsabilidade</td>
+                    <td>Responsabilidade parcial</td>
+                    <td>Responsabilidade do provider</td>
+                </tr>
+                <tr>
+                    <td><strong>Tempo de Deploy</strong></td>
+                    <td>Semanas/Meses</td>
+                    <td>Dias/Semanas</td>
+                    <td>Minutos/Horas</td>
+                </tr>
+            </table>
+
+            *CAPEX: Capital Expenditure (Investimento em infraestrutura)</p>
+            **OPEX: Operational Expenditure (Custos operacionais)
+        </div>
+
+        <!-- Slide 5: Vantagens da Cloud -->
+        <div class="slide">
+            <div class="slide-number">5 / 20</div>
+            <h1>Vantagens da Cloud Computing</h1>
+            
+            <div class="highlight">
+                <h3 style="color: white;">💰 Redução de Custos</h3>
+                <p style="color: white;">Elimina custos de hardware (CAPEX) e reduz despesas operacionais (OPEX)</p>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                <h3 style="color: white;">🚀 Velocidade e Agilidade</h3>
+                <p style="color: white;">Recursos provisionados em minutos, não semanas</p>
+            </div>
+            
+            <div class="highlight">
+                <h3 style="color: white;">🌍 Escala Global</h3>
+                <p style="color: white;">Deploy de aplicações em múltiplas regiões facilmente</p>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                <h3 style="color: white;">🔒 Segurança Avançada</h3>
+                <p style="color: white;">Beneficia de investimentos massivos em segurança dos provedores</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Modelos de Serviço -->
+        <div class="slide">
+            <div class="slide-number">6 / 20</div>
+            <h1>Modelos de Serviço Cloud</h1>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+                <div style="flex: 1; margin: 10px; padding: 20px; background: #f0f8ff; border-radius: 15px;">
+                    <h3 style="text-align: center;">IaaS</h3>
+                    <p style="text-align: center; font-size: 1em;">Infrastructure as a Service</p>
+                    <hr style="margin: 15px 0; border: 1px solid #667eea;">
+                    <ul style="font-size: 1em;">
+                        <li>Máquinas Virtuais</li>
+                        <li>Armazenamento</li>
+                        <li>Redes</li>
+                        <li>Sistemas Operativos</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em;"><strong>Exemplo:</strong> Azure VMs, AWS EC2</p>
+                </div>
+                
+                <div style="flex: 1; margin: 10px; padding: 20px; background: #f5f0ff; border-radius: 15px;">
+                    <h3 style="text-align: center;">PaaS</h3>
+                    <p style="text-align: center; font-size: 1em;">Platform as a Service</p>
+                    <hr style="margin: 15px 0; border: 1px solid #764ba2;">
+                    <ul style="font-size: 1em;">
+                        <li>Ambiente de desenvolvimento</li>
+                        <li>Base de dados gerida</li>
+                        <li>Middleware</li>
+                        <li>Ferramentas de BI</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em;"><strong>Exemplo:</strong> Azure App Service</p>
+                </div>
+                
+                <div style="flex: 1; margin: 10px; padding: 20px; background: #fff0f5; border-radius: 15px;">
+                    <h3 style="text-align: center;">SaaS</h3>
+                    <p style="text-align: center; font-size: 1em;">Software as a Service</p>
+                    <hr style="margin: 15px 0; border: 1px solid #667eea;">
+                    <ul style="font-size: 1em;">
+                        <li>Aplicações completas</li>
+                        <li>Email</li>
+                        <li>CRM</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em;"><strong>Exemplo:</strong> Microsoft 365</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Responsabilidades -->
+        <div class="slide">
+            <div class="slide-number">7 / 20</div>
+            <h1>Modelo de Responsabilidade Partilhada</h1>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Componente</th>
+                    <th>On-Premises</th>
+                    <th>IaaS</th>
+                    <th>PaaS</th>
+                    <th>SaaS</th>
+                </tr>
+                <tr>
+                    <td>Dados e Acessos</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                </tr>
+                <tr>
+                    <td>Aplicações</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #90ee90;">Provider</td>
+                </tr>
+                <tr>
+                    <td>Runtime</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                </tr>
+                <tr>
+                    <td>Sistema Operativo</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                </tr>
+                <tr>
+                    <td>Virtualização</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                </tr>
+                <tr>
+                    <td>Hardware</td>
+                    <td style="background: #ffd700;">Cliente</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                    <td style="background: #90ee90;">Provider</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>⚠️ Importante:</strong> Compreender este modelo é crucial para a segurança e compliance!
+            </div>
+        </div>
+
+        <!-- Slide 8: Modelos de Implementação -->
+        <div class="slide">
+            <div class="slide-number">8 / 20</div>
+            <h1>Modelos de Implementação Cloud</h1>
+            
+            <h2>☁️ Cloud Pública</h2>
+            <ul>
+                <li>Recursos são propriedade do provider e operados por ele</li>
+                <li>Acesso via Internet (opcional: via VPN)</li>
+                <li>Exemplos: Azure, AWS, Google Cloud</li>
+                <li>✅ Menor custo | ❌ Menor controlo</li>
+            </ul>
+            
+            <h2>🏢 Cloud Privada</h2>
+            <ul>
+                <li>Infraestrutura dedicada a uma única organização</li>
+                <li>Pode estar on-premises ou hosted</li>
+                <li>Maior controlo e personalização</li>
+                <li>✅ Maior segurança | ❌ Maior custo</li>
+            </ul>
+            
+            <h2>🔄 Cloud Híbrida</h2>
+            <ul>
+                <li>Combinação de cloud pública e privada</li>
+                <li>Dados e aplicações podem mover-se entre ambas</li>
+                <li>Flexibilidade máxima</li>
+                <li>✅ Melhor dos dois mundos | ❌ Maior complexidade</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Principais Providers -->
+        <div class="slide">
+            <div class="slide-number">9 / 20</div>
+            <h1>Principais Provedores Cloud</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px;">
+                <div class="highlight">
+                    <h3 style="color: white;">Microsoft Azure</h3>
+                    <ul style="color: white;">
+                        <li>Integração com produtos Microsoft</li>
+                        <li>Forte em soluções híbridas</li>
+                        <li>Azure Active Directory</li>
+                        <li>Presença em África (Cape Town, Johannesburg)</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #ff9a00, #ff6b00);">
+                    <h3 style="color: white;">Amazon Web Services</h3>
+                    <ul style="color: white;">
+                        <li>Líder de mercado</li>
+                        <li>Maior número de serviços</li>
+                        <li>Forte ecosistema</li>
+                        <li>Presença global extensa</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #4285f4, #34a853);">
+                    <h3 style="color: white;">Google Cloud Platform</h3>
+                    <ul style="color: white;">
+                        <li>Forte em AI/ML</li>
+                        <li>Kubernetes nativo</li>
+                        <li>BigQuery para análises</li>
+                        <li>Preços competitivos</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                    <h3 style="color: white;">Outros Players</h3>
+                    <ul style="color: white;">
+                        <li>Oracle Cloud</li>
+                        <li>IBM Cloud</li>
+                        <li>Alibaba Cloud</li>
+                        <li>Huawei Cloud</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Microsoft Azure -->
+        <div class="slide">
+            <div class="slide-number">10 / 20</div>
+            <h1>Microsoft Azure - Visão Geral</h1>
+            
+            <div class="diagram">
+                <div class="icon">☁️</div>
+                <h2 style="color: #0078d4;">Microsoft Azure</h2>
+            </div>
+            
+            <h3>O que é o Azure?</h3>
+            <p>Plataforma de cloud computing da Microsoft com mais de 200 serviços disponíveis globalmente.</p>
+            
+            <h3>Números Chave:</h3>
+            <ul>
+                <li>📍 <strong>60+ regiões</strong> em todo o mundo</li>
+                <li>🌍 <strong>140 países</strong> com disponibilidade</li>
+                <li>🏢 <strong>95% das Fortune 500</strong> usam Azure</li>
+                <li>🔒 <strong>90+ certificações</strong> de compliance</li>
+            </ul>
+            
+            <div class="important">
+                <strong>Para o caso específico de Angola:</strong> As regiões mais próximas (e por conta disso recomendadas dada a menor latência) são South Africa North (Johannesburg) e South Africa West (Cape Town), oferecendo baixa latência para aplicações.
+            </div>
+        </div>
+
+        <!-- Slide 11: Estrutura do Azure -->
+        <div class="slide">
+            <div class="slide-number">11 / 20</div>
+            <h1>Estrutura Organizacional do Azure</h1>
+            
+            <div class="diagram" style="padding: 40px;">
+                <h3>📊 Hierarquia Azure</h3>
+                <div style="margin: 20px 0; padding: 15px; background: #e8f4fd; border-left: 5px solid #0078d4;">
+                    <strong>Management Groups</strong> - Gestão de múltiplas subscrições (assinaturas)
+                </div>
+                <div style="margin: 20px 40px; padding: 15px; background: #f0f8ff; border-left: 5px solid #40a9ff;">
+                    <strong>Subscriptions</strong> - Limite de faturação e controlo de acesso
+                </div>
+                <div style="margin: 20px 80px; padding: 15px; background: #f5faff; border-left: 5px solid #91d5ff;">
+                    <strong>Resource Groups</strong> - Agrupamento lógico de recursos
+                </div>
+                <div style="margin: 20px 120px; padding: 15px; background: #fafafa; border-left: 5px solid #bae7ff;">
+                    <strong>Resources</strong> - VMs, Storage, Databases, etc.
+                </div>
+            </div>
+            
+            <h3>Conceitos Fundamentais:</h3>
+            <ul>
+                <li><strong>Resource:</strong> Item gerenciável disponível no Azure (VM, DB, etc.)</li>
+                <li><strong>Resource Group:</strong> Container que agrupa recursos relacionados</li>
+                <li><strong>Subscription:</strong> Agrupamento lógico de recursos para faturação</li>
+                <li><strong>Management Group:</strong> Gestão hierárquica de subscriptions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 12: Regiões e Disponibilidade -->
+        <div class="slide">
+            <div class="slide-number">12 / 20</div>
+            <h1>Regiões e Zonas de Disponibilidade</h1>
+            
+            <h2>🌍 Regiões Azure</h2>
+            <p>Uma <strong>região</strong> é uma área geográfica que contém pelo menos um datacenter (normalmente três, separados por uma distância de 50km).</p>
+            
+            <div class="highlight">
+                <h3 style="color: white;">Regiões em África (ambas possuem 3 AZ's):</h3>
+                <ul style="color: white;">
+                    <li>🇿🇦 South Africa North (Johannesburg)</li>
+                    <li>🇿🇦 South Africa West (Cape Town)</li>
+                </ul>
+            </div>
+            
+            <h2>🏢 Zonas de Disponibilidade</h2>
+            <p>Datacenters fisicamente separados dentro de uma região Azure.</p>
+            
+            <ul>
+                <li>✅ Proteção contra falhas de datacenter</li>
+                <li>✅ Alta disponibilidade (99.99% SLA)</li>
+                <li>✅ Replicação síncrona de dados</li>
+                <li>✅ Latência < 2ms entre zonas</li>
+            </ul>
+            
+            <div class="important">
+                <strong>Best Practice:</strong> Sempre distribua recursos críticos entre múltiplas zonas de disponibilidade!
+            </div>
+        </div>
+
+        <!-- Slide 13: Portal Azure -->
+        <div class="slide">
+            <div class="slide-number">13 / 20</div>
+            <h1>Azure Portal</h1>
+            
+            <h2>🖥️ O que é o Azure Portal?</h2>
+            <p>Interface web unificada para gerir todos os serviços Azure.</p>
+            
+            <h3>URL de Acesso: <a href="https://portal.azure.com" target="_blank">https://portal.azure.com</a></h3>
+            
+            <h3>Funcionalidades Principais:</h3>
+            <ul>
+                <li>📊 <strong>Dashboard personalizável</strong> - Visualização de recursos</li>
+                <li>🔍 <strong>Azure Marketplace</strong> - Catálogo de soluções</li>
+                <li>💰 <strong>Cost Management</strong> - Controlo de custos</li>
+                <li>📈 <strong>Azure Monitor</strong> - Monitorização de recursos</li>
+                <li>🛡️ <strong>Security Center</strong> - Gestão de segurança</li>
+            </ul>
+            
+            <h3>Alternativas de Acesso:</h3>
+            <ul>
+                <li>Azure CLI - Linha de comando</li>
+                <li>Azure PowerShell - Cmdlets PowerShell</li>
+                <li>Azure Mobile App - Gestão mobile</li>
+                <li>REST APIs - Integração programática</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Azure CLI -->
+        <div class="slide">
+            <div class="slide-number">14 / 20</div>
+            <h1>Azure CLI - Interface de Linha de Comando</h1>
+            
+            <h2>Instalação</h2>
+            <div class="code-block">
+# Windows (PowerShell como Admin)
+Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
+
+Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
+
+# Linux (Ubuntu/Debian)
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# macOS
+brew update && brew install azure-cli
+            </div>
+            
+            <h2>Comandos Básicos</h2>
+            <div class="code-block">
+# Login
+az login
+
+# Listar subscriptions
+az account list
+
+# Definir subscription activa
+az account set --subscription "Nome-da-Subscription"
+
+# Criar resource group
+az group create --name MeuGrupo --location southafricanorth
+
+# Listar VMs
+az vm list --output table
+            </div>
+        </div>
+        
+        <!-- Slide 15: Serviços Principais -->
+        <div class="slide">
+            <div class="slide-number">15 / 20</div>
+            <h1>Serviços Principais do Azure</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="padding: 20px; background: #f0f8ff; border-radius: 10px;">
+                    <h3>💻 Computação</h3>
+                    <ul style="font-size: 1em;">
+                        <li>Virtual Machines</li>
+                        <li>App Service</li>
+                        <li>Functions</li>
+                        <li>Container Instances</li>
+                        <li>Kubernetes Service</li>
+                    </ul>
+                </div>
+                
+                <div style="padding: 20px; background: #f5faff; border-radius: 10px;">
+                    <h3>💾 Armazenamento</h3>
+                    <ul style="font-size: 1em;">
+                        <li>Storage Accounts</li>
+                        <li>Managed Disks</li>
+                        <li>Files</li>
+                        <li>Archive Storage</li>
+                    </ul>
+                </div>
+                
+                <div style="padding: 20px; background: #fff0f5; border-radius: 10px;">
+                    <h3>🌐 Rede</h3>
+                    <ul style="font-size: 1em;">
+                        <li>Virtual Networks</li>
+                        <li>Load Balancer</li>
+                        <li>VPN Gateway</li>
+                        <li>Application Gateway</li>
+                    </ul>
+                </div>
+                
+                <div style="padding: 20px; background: #f0fff0; border-radius: 10px;">
+                    <h3>🗄️ Bases de Dados</h3>
+                    <ul style="font-size: 1em;">
+                        <li>SQL Database</li>
+                        <li>Cosmos DB</li>
+                        <li>PostgreSQL</li>
+                        <li>Redis Cache</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Hands-On Preview -->
+        <div class="slide">
+            <div class="slide-number">16 / 20</div>
+            <h1>O Que Vamos Fazer Hoje</h1>
+            
+            <h3>🔬 Laboratórios Práticos:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Lab 1: Configuração Inicial</h4>
+                <ul style="color: white;">
+                    <li>Criar conta Azure Free</li>
+                    <li>Explorar o Portal Azure</li>
+                    <li>Configurar Azure CLI</li>
+                </ul>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #5c6bc0, #667eea);">
+                <h4 style="color: white;">Lab 2: Recursos Básicos</h4>
+                <ul style="color: white;">
+                    <li>Criar Resource Group</li>
+                    <li>Provisionar Virtual Machine</li>
+                    <li>Configurar Networking</li>
+                </ul>
+            </div>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Lab 3: Gestão e Monitorização</h4>
+                <ul style="color: white;">
+                    <li>Tags e organização</li>
+                    <li>Monitorar custos</li>
+                    <li>Configurar alertas</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 17: Custos e Otimização -->
+        <div class="slide">
+            <div class="slide-number">17 / 20</div>
+            <h1>Gestão de Custos no Azure</h1>
+            
+            <h3>💰 Modelo de Preços:</h3>
+            <ul>
+                <li><strong>Pay-as-you-go</strong> - Paga pelo que usa</li>
+                <li><strong>Reserved Instances</strong> - Até 72% desconto</li>
+                <li><strong>Spot VMs</strong> - Até 90% desconto</li>
+                <li><strong>Dev/Test Pricing</strong> - Preços reduzidos para desenvolvimento</li>
+            </ul>
+            
+            <h3>🎯 Dicas para Economizar:</h3>
+            <div class="code-block">
+# 1. Desligar VMs quando não estiver usando
+az vm deallocate --resource-group RG --name VM
+
+# 2. Usar tamanhos adequados
+Standard_B1s  # Para testes (barato)
+Standard_B2s  # Para desenvolvimento
+
+# 3. Configurar auto-shutdown
+Portal → VM → Auto-shutdown → Enable
+
+# 4. Monitorar custos regularmente
+Portal → Cost Management → Cost analysis
+            </div>
+            
+            <div class="important">
+                <strong>⚠️ Atenção:</strong> Sempre delete recursos não utilizados para evitar custos inesperados!
+            </div>
+        </div>
+
+        <!-- Slide 18: Azure para Angola -->
+        <div class="slide">
+            <div class="slide-number">18 / 20</div>
+            <h1>Azure no Contexto de Angola</h1>
+            
+            <h3>🌍 Considerações Regionais:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Regiões Mais Próximas:</h4>
+                <ul style="color: white;">
+                    <li>🇿🇦 South Africa North (Johannesburg) - ~30ms latência</li>
+                    <li>🇿🇦 South Africa West (Cape Town) - ~35ms latência</li>
+                    <li>🇪🇺 West Europe (Amsterdam) - ~150ms latência</li>
+                </ul>
+            </div>
+            
+            <h3>💡 Oportunidades Locais:</h3>
+            <ul>
+                <li>🏦 <strong>Sector Bancário</strong> - Modernização de sistemas</li>
+                <li>📱 <strong>Telecomunicações</strong> - Análise de dados em escala</li>
+                <li>🏢 <strong>Governo</strong> - Digitalização de serviços públicos</li>
+                <li>🎓 <strong>Educação</strong> - Plataformas de e-learning</li>
+                <li>⚡ <strong>Energia</strong> - Smart grids e monitorização</li>
+            </ul>
+            
+            <h3>🚀 Vantagens para Angola:</h3>
+            <ul>
+                <li>Redução de CAPEX inicial</li>
+                <li>Acesso a tecnologia de ponta</li>
+                <li>Escalabilidade para crescimento</li>
+                <li>Disaster recovery simplificado</li>
+            </ul>
+        </div>
+
+        <!-- Slide 19: Recursos de Aprendizagem -->
+        <div class="slide">
+            <div class="slide-number">19 / 20</div>
+            <h1>Recursos para Continuar Aprendendo</h1>
+            
+            <h3>📚 Documentação e Tutoriais:</h3>
+            <ul>
+                <li>🔗 <strong>Microsoft Learn</strong> - learn.microsoft.com</li>
+                <li>🔗 <strong>Azure Documentation</strong> - docs.microsoft.com/azure</li>
+                <li>🔗 <strong>Azure Architecture Center</strong> - Padrões e best practices</li>
+                <li>🔗 <strong>Azure Friday</strong> - Vídeos semanais</li>
+            </ul>
+            
+            <h3>🎓 Certificações Recomendadas:</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div style="background: #f0f8ff; padding: 15px; border-radius: 10px;">
+                    <strong>Nível Fundamental:</strong>
+                    <ul style="font-size: 0.9em;">
+                        <li>AZ-900: Azure Fundamentals</li>
+                        <li>AI-900: AI Fundamentals</li>
+                        <li>DP-900: Data Fundamentals</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #f5f0ff; padding: 15px; border-radius: 10px;">
+                    <strong>Nível Associate:</strong>
+                    <ul style="font-size: 0.9em;">
+                        <li>AZ-104: Azure Administrator</li>
+                        <li>AZ-204: Azure Developer</li>
+                        <li>AZ-500: Security Engineer</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>🛠️ Ferramentas Essenciais:</h3>
+            <ul>
+                <li><strong>Azure CLI</strong> - Linha de comando</li>
+                <li><strong>Azure PowerShell</strong> - Automação</li>
+                <li><strong>Azure Storage Explorer</strong> - Gestão de storage</li>
+                <li><strong>VS Code</strong> + Azure Extensions</li>
+            </ul>
+        </div>
+
+        <!-- Slide 20: Conclusão -->
+        <div class="slide">
+            <div class="slide-number">20 / 20</div>
+            <h1>Resumo e Próximos Passos</h1>
+            
+            <h3>✅ O Que Aprendemos Hoje:</h3>
+            <ul>
+                <li>Conceitos fundamentais de Cloud Computing</li>
+                <li>Modelos de serviço (IaaS, PaaS, SaaS)</li>
+                <li>Estrutura e serviços do Azure</li>
+                <li>Navegação no Portal Azure</li>
+                <li>Criação de recursos básicos</li>
+                <li>Boas práticas de custos e segurança</li>
+            </ul>
+            
+            <h3>🎯 Para Amanhã (Dia 2):</h3>
+            <div class="highlight">
+                <h3 style="color: white;">Git e GitHub</h3>
+                <ul style="color: white;">
+                    <li>Controlo de versão</li>
+                    <li>Colaboração em equipa</li>
+                    <li>CI/CD básico</li>
+                </ul>
+            </div>
+            
+            <h3>💬 Perguntas?</h3>
+            <p style="text-align: center; font-size: 1.5em; margin-top: 30px;">
+                Agora é o momento para esclarecer dúvidas!
+            </p>
+            
+            <p style="text-align: center; margin-top: 50px; color: #667eea; font-size: 1.3em;">
+                <strong>Obrigado e até amanhã! 🚀</strong>
+            </p>
+        </div>
+
+
+    <!-- Controles -->
+    <div class="controls">
+        <button onclick="previousSlide()">← Anterior</button>
+        <button onclick="nextSlide()">Próximo →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+    </script>
+</body>
+</html>

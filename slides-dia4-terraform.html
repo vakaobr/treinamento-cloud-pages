@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia 4 - Terraform e Provisionamento de Infraestrutura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0db7ed 0%, #384d65 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 60px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        h1 {
+            color: #0db7ed;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #384d65;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #384d65;
+            font-size: 2.2em;
+            margin: 30px 0 20px;
+        }
+        
+        h3 {
+            color: #0db7ed;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        
+        ul {
+            margin-left: 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #0db7ed, #384d65);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            line-height: 1.5;
+            white-space: pre; 
+        }
+        
+        .code-block .comment {
+            color: #6a9955;
+        }
+        
+        .code-block .keyword {
+            color: #569cd6;
+        }
+        
+        .code-block .string {
+            color: #ce9178;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #0db7ed;
+            border: 2px solid #0db7ed;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #0db7ed;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #0db7ed;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 15px;
+        }
+        
+        .icon {
+            font-size: 3em;
+            color: #0db7ed;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #0db7ed;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table th {
+            background: #0db7ed;
+            color: white;
+        }
+        
+        .docker-architecture {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(to right, #f0f8ff, #e6f4ff);
+            border-radius: 15px;
+        }
+        
+        .architecture-layer {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <div class="slide-number">1 / 30</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon">🏗️</div>
+                <h1 style="border: none; font-size: 4em;">Terraform</h1>
+                <h2>Infrastructure as Code</h2>
+                <p style="font-size: 1.5em; color: #666; margin-top: 40px;">Dia 4 - Formação em Cloud Computing</p>
+                <p style="margin-top: 60px; color: #999;">Pressione → para continuar</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <div class="slide-number">2 / 30</div>
+            <h1>Agenda do Dia 4</h1>
+            <div class="highlight">
+                <h3 style="color: white;">Manhã (09:00 - 13:00)</h3>
+                <ul style="color: white;">
+                    <li>Conceito de Infrastructure as Code</li>
+                    <li>Introdução ao Terraform</li>
+                    <li>HCL - HashiCorp Configuration Language</li>
+                    <li>Providers e Resources</li>
+                    <li>Variables e Outputs</li>
+                </ul>
+            </div>
+            <div class="highlight" style="background: linear-gradient(135deg, #5c6bc0, #7e57c2);">
+                <h3 style="color: white;">Tarde (14:00 - 18:00)</h3>
+                <ul style="color: white;">
+                    <li>State Management</li>
+                    <li>Módulos Terraform</li>
+                    <li>Workspaces</li>
+                    <li>Best Practices</li>
+                    <li>Projeto Completo Azure</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Problema Tradicional -->
+        <div class="slide">
+            <div class="slide-number">3 / 30</div>
+            <h1>O Problema: Gestão Manual de Infraestrutura</h1>
+            
+            <div class="diagram">
+                <h3>😰 Desafios Tradicionais</h3>
+            </div>
+            
+            <ul>
+                <li>❌ <strong>Configuração Manual</strong> - Cliques no portal, propenso a erros</li>
+                <li>❌ <strong>Falta de Versionamento</strong> - Sem histórico de mudanças</li>
+                <li>❌ <strong>Difícil Replicação</strong> - Ambientes inconsistentes</li>
+                <li>❌ <strong>Documentação Desatualizada</strong> - Infraestrutura != Docs</li>
+                <li>❌ <strong>Rollback Complexo</strong> - Como voltar ao estado anterior?</li>
+                <li>❌ <strong>Drift de Configuração</strong> - Mudanças não rastreadas</li>
+            </ul>
+            
+            <div class="important">
+                <strong>💡 Cenário Real:</strong> Equipa gasta 2 dias para recriar ambiente de produção em DR devido a falta de documentação e configurações manuais não documentadas.
+            </div>
+        </div>
+
+        <!-- Slide 4: Infrastructure as Code -->
+        <div class="slide">
+            <div class="slide-number">4 / 30</div>
+            <h1>Infrastructure as Code (IaC)</h1>
+            
+            <div class="diagram">
+                <div class="icon">📝</div>
+                <h2>Infraestrutura Definida como Código</h2>
+            </div>
+            
+            <h3>Princípios do IaC:</h3>
+            <ul>
+                <li>✅ <strong>Declarativo</strong> - Descreve o estado desejado</li>
+                <li>✅ <strong>Versionável</strong> - Guardado em Git</li>
+                <li>✅ <strong>Reproduzível</strong> - Mesmo código = Mesma infra</li>
+                <li>✅ <strong>Automatizado</strong> - Deploy via CI/CD</li>
+                <li>✅ <strong>Testável</strong> - Validação antes do deploy</li>
+            </ul>
+            
+            <h3>Benefícios:</h3>
+            <ul>
+                <li>🚀 Deploy rápido e consistente</li>
+                <li>📋 Documentação sempre atualizada</li>
+                <li>🔄 Rollback fácil</li>
+                <li>👥 Colaboração via pull requests</li>
+                <li>💰 Redução de custos operacionais</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: O que é Terraform -->
+        <div class="slide">
+            <div class="slide-number">5 / 30</div>
+            <h1>O que é Terraform?</h1>
+            
+            <div class="diagram">
+                <div class="icon">🏗️</div>
+                <h2>Ferramenta Open Source de IaC da HashiCorp</h2>
+            </div>
+            
+            <h3>Características Principais:</h3>
+            <ul>
+                <li>🌍 <strong>Multi-Cloud</strong> - AWS, Azure, GCP, +300 providers</li>
+                <li>📝 <strong>Declarativo</strong> - Define o "o quê", não o "como"</li>
+                <li>🔍 <strong>Plan & Apply</strong> - Preview antes de aplicar</li>
+                <li>📊 <strong>State Management</strong> - Rastreia recursos criados</li>
+                <li>🧩 <strong>Modular</strong> - Reutilização de código</li>
+                <li>🔓 <strong>Open Source</strong> - Comunidade ativa</li>
+            </ul>
+            
+            <div class="highlight">
+                <h3 style="color: white;">Por que Terraform?</h3>
+                <p style="color: white;">Líder de mercado em IaC, suporta múltiplos providers, sintaxe simples (HCL), grande ecosistema de módulos oficiais e da comunidade.</p>
+            </div>
+            <p>A HashiCorp foi adquirida pela IBM, em um negócio avaliado em USD 6.4 bilhões.</p>
+        </div>
+
+        <!-- Slide 6: Terraform vs Outras Ferramentas -->
+        <div class="slide">
+            <div class="slide-number">6 / 30</div>
+            <h1>Terraform vs Outras Ferramentas IaC</h1>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Ferramenta</th>
+                    <th>Tipo</th>
+                    <th>Cloud Support</th>
+                    <th>Linguagem</th>
+                </tr>
+                <tr>
+                    <td><strong>Terraform</strong></td>
+                    <td>Declarativo</td>
+                    <td>Multi-cloud</td>
+                    <td>HCL</td>
+                </tr>
+                <tr>
+                    <td><strong>ARM Templates</strong></td>
+                    <td>Declarativo</td>
+                    <td>Azure only</td>
+                    <td>JSON</td>
+                </tr>
+                <tr>
+                    <td><strong>CloudFormation</strong></td>
+                    <td>Declarativo</td>
+                    <td>AWS only</td>
+                    <td>YAML/JSON</td>
+                </tr>
+                <tr>
+                    <td><strong>Ansible</strong></td>
+                    <td>Procedural</td>
+                    <td>Multi-cloud</td>
+                    <td>YAML</td>
+                </tr>
+                <tr>
+                    <td><strong>Pulumi</strong></td>
+                    <td>Declarativo</td>
+                    <td>Multi-cloud</td>
+                    <td>TypeScript/Python/Go</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>💡 Quando usar Terraform:</strong> Projetos multi-cloud, necessidade de modularização, equipas que preferem DSL (domain specific languages) sobre programação completa.
+            </div>
+        </div>
+
+        <!-- Slide 7: Como Funciona -->
+        <div class="slide">
+            <div class="slide-number">7 / 30</div>
+            <h1>Como Terraform Funciona</h1>
+            
+            <div class="workflow-diagram">
+                <div class="workflow-step">
+                    <h3>1. Write</h3>
+                    <p>Código HCL</p>
+                    <code>.tf files</code>
+                </div>
+                <div style="font-size: 2em;">→</div>
+                <div class="workflow-step">
+                    <h3>2. Plan</h3>
+                    <p>Preview</p>
+                    <code>terraform plan</code>
+                </div>
+                <div style="font-size: 2em;">→</div>
+                <div class="workflow-step">
+                    <h3>3. Apply</h3>
+                    <p>Criar/Alterar</p>
+                    <code>terraform apply</code>
+                </div>
+            </div>
+            
+            <h3>Workflow Completo:</h3>
+            <div class="code-block">
+<span class="comment"># 1. Inicializar (baixa providers)</span>
+terraform init
+
+<span class="comment"># 2. Validar sintaxe</span>
+terraform validate
+
+<span class="comment"># 3. Ver mudanças planeadas</span>
+terraform plan
+
+<span class="comment"># 4. Aplicar mudanças</span>
+terraform apply
+
+<span class="comment"># 5. Destruir recursos (quando necessário)</span>
+terraform destroy
+            </div>
+        </div>
+
+        <!-- Slide 8: HCL Basics -->
+        <div class="slide">
+            <div class="slide-number">8 / 30</div>
+            <h1>HCL - HashiCorp Configuration Language</h1>
+            
+            <h3>Sintaxe Básica:</h3>
+            <div class="code-block">
+<span class="comment"># Comentário</span>
+
+<span class="comment"># Bloco de recurso</span>
+<span class="keyword">resource</span> <span class="string">"tipo"</span> <span class="string">"nome"</span> {
+  <span class="variable">propriedade</span> = <span class="string">"valor"</span>
+  <span class="variable">numero</span>     = 42
+  <span class="variable">booleano</span>   = true
+  <span class="variable">lista</span>      = [<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]
+  
+  <span class="variable">mapa</span> = {
+    chave = <span class="string">"valor"</span>
+  }
+  
+  <span class="comment"># Bloco aninhado</span>
+  <span class="keyword">configuracao</span> {
+    <span class="variable">opcao</span> = <span class="string">"valor"</span>
+  }
+}
+
+<span class="comment"># Referência a outro recurso</span>
+<span class="variable">referencia</span> = tipo.nome.atributo
+            </div>
+            
+            <h3>Tipos de Blocos:</h3>
+            <ul>
+                <li><strong>resource</strong> - Define recursos de infraestrutura</li>
+                <li><strong>data</strong> - Busca informações existentes</li>
+                <li><strong>variable</strong> - Define variáveis de entrada</li>
+                <li><strong>output</strong> - Define valores de saída</li>
+                <li><strong>locals</strong> - Define valores locais</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Primeiro Recurso -->
+        <div class="slide">
+            <div class="slide-number">9 / 30</div>
+            <h1>Primeiro Recurso Terraform</h1>
+            
+            <h3>main.tf - Resource Group no Azure:</h3>
+            <div class="code-block">
+<span class="comment"># Configure o Provider Azure</span>
+<span class="keyword">terraform</span> {
+  <span class="keyword">required_providers</span> {
+    <span class="variable">azurerm</span> = {
+      <span class="variable">source</span>  = <span class="string">"hashicorp/azurerm"</span>
+      <span class="variable">version</span> = <span class="string">"~> 3.0"</span>
+    }
+  }
+}
+
+<span class="comment"># Configure o Provider</span>
+<span class="keyword">provider</span> <span class="string">"azurerm"</span> {
+  <span class="keyword">features</span> {}
+}
+
+<span class="comment"># Criar Resource Group</span>
+<span class="keyword">resource</span> <span class="string">"azurerm_resource_group"</span> <span class="string">"main"</span> {
+  <span class="variable">name</span>     = <span class="string">"rg-terraform-demo"</span>
+  <span class="variable">location</span> = <span class="string">"South Africa North"</span>
+  
+  <span class="variable">tags</span> = {
+    Environment = <span class="string">"Development"</span>
+    ManagedBy   = <span class="string">"Terraform"</span>
+  }
+}
+            </div>
+        </div>
+
+        <!-- Slide 10: Variables -->
+        <div class="slide">
+            <div class="slide-number">10 / 30</div>
+            <h1>Variables - Tornando Código Reutilizável</h1>
+            
+            <div class="code-block">
+<span class="comment"># variables.tf</span>
+<span class="keyword">variable</span> <span class="string">"location"</span> {
+  <span class="variable">type</span>        = string
+  <span class="variable">default</span>     = <span class="string">"South Africa North"</span>
+  <span class="variable">description</span> = <span class="string">"Azure region"</span>
+}
+
+<span class="keyword">variable</span> <span class="string">"environment"</span> {
+  <span class="variable">type</span>        = string
+  <span class="variable">description</span> = <span class="string">"Environment name"</span>
+  
+  <span class="keyword">validation</span> {
+    <span class="variable">condition</span>     = contains([<span class="string">"dev"</span>, <span class="string">"staging"</span>, <span class="string">"prod"</span>], var.environment)
+    <span class="variable">error_message</span> = <span class="string">"Must be dev, staging, or prod"</span>
+  }
+}
+
+<span class="comment"># Usar variáveis</span>
+<span class="keyword">resource</span> <span class="string">"azurerm_resource_group"</span> <span class="string">"main"</span> {
+  <span class="variable">name</span>     = <span class="string">"rg-${var.environment}"</span>
+  <span class="variable">location</span> = var.location
+}
+            </div>
+            
+            <h3>Passar Valores:</h3>
+            <ul>
+                <li>terraform.tfvars</li>
+                <li>-var "environment=prod"</li>
+                <li>TF_VAR_environment=prod</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: Outputs -->
+        <div class="slide">
+            <div class="slide-number">11 / 30</div>
+            <h1>Outputs - Expor Informações</h1>
+            
+            <div class="code-block">
+<span class="comment"># outputs.tf</span>
+<span class="keyword">output</span> <span class="string">"resource_group_id"</span> {
+  <span class="variable">value</span>       = azurerm_resource_group.main.id
+  <span class="variable">description</span> = <span class="string">"ID do Resource Group"</span>
+}
+
+<span class="keyword">output</span> <span class="string">"resource_group_name"</span> {
+  <span class="variable">value</span> = azurerm_resource_group.main.name
+}
+
+<span class="keyword">output</span> <span class="string">"connection_string"</span> {
+  <span class="variable">value</span>     = azurerm_storage_account.main.primary_connection_string
+  <span class="variable">sensitive</span> = true  <span class="comment"># Não mostra no console</span>
+}
+            </div>
+            
+            <h3>Usar Outputs:</h3>
+            <div class="code-block">
+<span class="comment"># Ver outputs após apply</span>
+terraform output
+
+<span class="comment"># Output específico</span>
+terraform output resource_group_name
+
+<span class="comment"># JSON format (para automação)</span>
+terraform output -json
+            </div>
+        </div>
+
+        <!-- Slide 12: Data Sources -->
+        <div class="slide">
+            <div class="slide-number">12 / 30</div>
+            <h1>Data Sources - Buscar Informações</h1>
+            
+            <h3>Usar Recursos Existentes:</h3>
+            <div class="code-block">
+<span class="comment"># Buscar subscription atual</span>
+<span class="keyword">data</span> <span class="string">"azurerm_subscription"</span> <span class="string">"current"</span> {}
+
+<span class="comment"># Buscar Resource Group existente</span>
+<span class="keyword">data</span> <span class="string">"azurerm_resource_group"</span> <span class="string">"existing"</span> {
+  <span class="variable">name</span> = <span class="string">"rg-already-exists"</span>
+}
+
+<span class="comment"># Buscar imagem de VM</span>
+<span class="keyword">data</span> <span class="string">"azurerm_platform_image"</span> <span class="string">"ubuntu"</span> {
+  <span class="variable">location</span>  = var.location
+  <span class="variable">publisher</span> = <span class="string">"Canonical"</span>
+  <span class="variable">offer</span>     = <span class="string">"0001-com-ubuntu-server-focal"</span>
+  <span class="variable">sku</span>       = <span class="string">"20_04-lts-gen2"</span>
+}
+
+<span class="comment"># Usar data source</span>
+<span class="keyword">resource</span> <span class="string">"azurerm_storage_account"</span> <span class="string">"main"</span> {
+  <span class="variable">resource_group_name</span> = data.azurerm_resource_group.existing.name
+  <span class="variable">location</span>           = data.azurerm_resource_group.existing.location
+  <span class="comment"># ...</span>
+}
+            </div>
+        </div>
+
+        <!-- Slide 13: Terraform State -->
+        <div class="slide">
+            <div class="slide-number">13 / 30</div>
+            <h1>Terraform State</h1>
+            
+            <div class="diagram">
+                <div class="icon">📊</div>
+                <h2>Mapeamento entre Código e Infraestrutura Real</h2>
+            </div>
+            
+            <h3>O que é State?</h3>
+            <ul>
+                <li>Ficheiro JSON que rastreia recursos criados</li>
+                <li>Mapeia configuração para recursos reais</li>
+                <li>Armazena metadados e dependências</li>
+                <li>Crítico para operações do Terraform</li>
+            </ul>
+            
+            <h3>Comandos de State:</h3>
+            <div class="code-block">
+<span class="comment"># Listar recursos no state</span>
+terraform state list
+
+<span class="comment"># Ver detalhes de recurso</span>
+terraform state show azurerm_resource_group.main
+
+<span class="comment"># Remover recurso do state (não deleta)</span>
+terraform state rm azurerm_resource_group.main
+
+<span class="comment"># Mover/renomear recurso</span>
+terraform state mv azurerm_resource_group.old azurerm_resource_group.new
+
+<span class="comment"># Pull/Push state</span>
+terraform state pull > backup.tfstate
+            </div>
+        </div>
+
+        <!-- Slide 14: Remote State -->
+        <div class="slide">
+            <div class="slide-number">14 / 30</div>
+            <h1>Remote State - Colaboração</h1>
+            
+            <h3>Problemas do State Local:</h3>
+            <ul>
+                <li>❌ Não permite colaboração</li>
+                <li>❌ Pode ser perdido</li>
+                <li>❌ Sem locking</li>
+                <li>❌ Segredos em texto plano</li>
+            </ul>
+            
+            <h3>Configurar Remote State (Azure):</h3>
+            <div class="code-block">
+<span class="comment"># backend.tf</span>
+<span class="keyword">terraform</span> {
+  <span class="keyword">backend</span> <span class="string">"azurerm"</span> {
+    <span class="variable">resource_group_name</span>  = <span class="string">"rg-terraform-state"</span>
+    <span class="variable">storage_account_name</span> = <span class="string">"stterraformstate"</span>
+    <span class="variable">container_name</span>       = <span class="string">"tfstate"</span>
+    <span class="variable">key</span>                  = <span class="string">"prod.terraform.tfstate"</span>
+  }
+}
+            </div>
+            
+            <div class="highlight">
+                <h3 style="color: white;">Benefícios:</h3>
+                <ul style="color: white;">
+                    <li>✅ State compartilhado</li>
+                    <li>✅ Locking automático</li>
+                    <li>✅ Encriptação</li>
+                    <li>✅ Versionamento</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Módulos -->
+        <div class="slide">
+            <div class="slide-number">15 / 30</div>
+            <h1>Módulos - Reutilização de Código</h1>
+            
+            <h3>Estrutura de Módulo:</h3>
+            <div class="code-block">
+modules/
+└── vm/
+    ├── main.tf       <span class="comment"># Recursos</span>
+    ├── variables.tf  <span class="comment"># Inputs</span>
+    ├── outputs.tf    <span class="comment"># Outputs</span>
+    └── README.md     <span class="comment"># Documentação</span>
+            </div>
+            
+            <h3>Usar Módulo:</h3>
+            <div class="code-block">
+<span class="keyword">module</span> <span class="string">"web_server"</span> {
+  <span class="variable">source</span> = <span class="string">"./modules/vm"</span>
+  
+  <span class="variable">name</span>                = <span class="string">"web-server"</span>
+  <span class="variable">resource_group_name</span> = azurerm_resource_group.main.name
+  <span class="variable">location</span>           = azurerm_resource_group.main.location
+  <span class="variable">vm_size</span>            = <span class="string">"Standard_B2s"</span>
+}
+
+<span class="comment"># Usar output do módulo</span>
+<span class="keyword">output</span> <span class="string">"web_server_ip"</span> {
+  <span class="variable">value</span> = module.web_server.public_ip
+}
+            </div>
+        </div>
+
+        <!-- Slide 16: Workspaces -->
+        <div class="slide">
+            <div class="slide-number">16 / 30</div>
+            <h1>Workspaces - Múltiplos Ambientes</h1>
+            
+            <h3>Gestão de Ambientes:</h3>
+            <div class="code-block">
+<span class="comment"># Criar workspace</span>
+terraform workspace new dev
+terraform workspace new staging
+terraform workspace new prod
+
+<span class="comment"># Listar workspaces</span>
+terraform workspace list
+
+<span class="comment"># Mudar workspace</span>
+terraform workspace select prod
+
+<span class="comment"># Ver workspace atual</span>
+terraform workspace show
+            </div>
+            
+            <h3>Configuração por Workspace:</h3>
+            <div class="code-block">
+<span class="keyword">locals</span> {
+  <span class="variable">environment</span> = terraform.workspace
+  
+  <span class="variable">instance_count</span> = {
+    dev     = 1
+    staging = 2
+    prod    = 5
+  }
+}
+
+<span class="keyword">resource</span> <span class="string">"azurerm_linux_virtual_machine"</span> <span class="string">"main"</span> {
+  <span class="variable">count</span> = local.instance_count[local.environment]
+  <span class="comment"># ...</span>
+}
+            </div>
+        </div>
+
+        <!-- Slide 17: Funções Terraform -->
+        <div class="slide">
+            <div class="slide-number">17 / 30</div>
+            <h1>Funções Built-in</h1>
+            
+            <h3>Funções Mais Usadas:</h3>
+            <div class="code-block">
+<span class="comment"># String Functions</span>
+<span class="variable">upper_name</span>   = upper(var.name)              <span class="comment"># HELLO</span>
+<span class="variable">lower_name</span>   = lower(var.name)              <span class="comment"># hello</span>
+<span class="variable">formatted</span>    = format(<span class="string">"vm-%s-%d"</span>, var.env, 1) <span class="comment"># vm-dev-1</span>
+<span class="variable">joined</span>       = join(<span class="string">"-"</span>, [<span class="string">"a"</span>, <span class="string">"b"</span>])        <span class="comment"># a-b</span>
+
+<span class="comment"># Collection Functions</span>
+<span class="variable">list_length</span>  = length(var.subnets)
+<span class="variable">first_subnet</span> = element(var.subnets, 0)
+<span class="variable">merged_tags</span>  = merge(var.common_tags, {Name = <span class="string">"Special"</span>})
+
+<span class="comment"># Conditional</span>
+<span class="variable">size</span> = var.environment == <span class="string">"prod"</span> ? <span class="string">"Standard_B4ms"</span> : <span class="string">"Standard_B2s"</span>
+
+<span class="comment"># For Expressions</span>
+<span class="variable">upper_names</span> = [for name in var.names : upper(name)]
+<span class="variable">name_map</span>    = {for idx, name in var.names : idx => name}
+            </div>
+        </div>
+
+        <!-- Slide 18: Loops e Condicionais -->
+        <div class="slide">
+            <div class="slide-number">18 / 30</div>
+            <h1>Loops e Condicionais</h1>
+            
+            <h3>Count - Múltiplas Instâncias:</h3>
+            <div class="code-block">
+<span class="keyword">resource</span> <span class="string">"azurerm_virtual_network"</span> <span class="string">"main"</span> {
+  <span class="variable">count</span> = 3
+  
+  <span class="variable">name</span> = <span class="string">"vnet-${count.index}"</span>
+  <span class="comment"># ...</span>
+}
+            </div>
+            
+            <h3>For_each - Iteração sobre Map/Set:</h3>
+            <div class="code-block">
+<span class="keyword">variable</span> <span class="string">"vms"</span> {
+  <span class="variable">default</span> = {
+    web = { size = <span class="string">"Standard_B2s"</span> }
+    app = { size = <span class="string">"Standard_B4ms"</span> }
+  }
+}
+
+<span class="keyword">resource</span> <span class="string">"azurerm_linux_virtual_machine"</span> <span class="string">"main"</span> {
+  <span class="variable">for_each</span> = var.vms
+  
+  <span class="variable">name</span> = <span class="string">"vm-${each.key}"</span>
+  <span class="variable">size</span> = each.value.size
+  <span class="comment"># ...</span>
+}
+            </div>
+        </div>
+
+        <!-- Slide 19: Dynamic Blocks -->
+        <div class="slide">
+            <div class="slide-number">19 / 30</div>
+            <h1>Dynamic Blocks</h1>
+            
+            <h3>Blocos Dinâmicos para Configurações Repetitivas:</h3>
+            <div class="code-block">
+<span class="keyword">variable</span> <span class="string">"ingress_rules"</span> {
+  <span class="variable">default</span> = [
+    { port = 80,  protocol = <span class="string">"tcp"</span>, cidr = <span class="string">"0.0.0.0/0"</span> },
+    { port = 443, protocol = <span class="string">"tcp"</span>, cidr = <span class="string">"0.0.0.0/0"</span> },
+    { port = 22,  protocol = <span class="string">"tcp"</span>, cidr = <span class="string">"10.0.0.0/8"</span> }
+  ]
+}
+
+<span class="keyword">resource</span> <span class="string">"azurerm_network_security_group"</span> <span class="string">"main"</span> {
+  <span class="variable">name</span>                = <span class="string">"nsg-main"</span>
+  <span class="variable">location</span>            = var.location
+  <span class="variable">resource_group_name</span> = var.resource_group_name
+  
+  <span class="keyword">dynamic</span> <span class="string">"security_rule"</span> {
+    <span class="variable">for_each</span> = var.ingress_rules
+    
+    <span class="keyword">content</span> {
+      <span class="variable">name</span>                   = <span class="string">"allow-${security_rule.value.port}"</span>
+      <span class="variable">priority</span>               = 100 + security_rule.key
+      <span class="variable">direction</span>              = <span class="string">"Inbound"</span>
+      <span class="variable">access</span>                 = <span class="string">"Allow"</span>
+      <span class="variable">protocol</span>               = security_rule.value.protocol
+      <span class="variable">destination_port_range</span> = security_rule.value.port
+      <span class="variable">source_address_prefix</span>  = security_rule.value.cidr
+    }
+  }
+}
+            </div>
+        </div>
+
+        <!-- Slide 20: Terraform Import -->
+        <div class="slide">
+            <div class="slide-number">20 / 30</div>
+            <h1>Import - Recursos Existentes</h1>
+            
+            <h3>Importar Infraestrutura Existente:</h3>
+            
+            <div class="code-block">
+<span class="comment"># 1. Escrever configuração para match</span>
+<span class="keyword">resource</span> <span class="string">"azurerm_resource_group"</span> <span class="string">"existing"</span> {
+  <span class="variable">name</span>     = <span class="string">"rg-already-exists"</span>
+  <span class="variable">location</span> = <span class="string">"South Africa North"</span>
+}
+
+<span class="comment"># 2. Importar resource</span>
+$ terraform import azurerm_resource_group.existing \
+    /subscriptions/xxx/resourceGroups/rg-already-exists
+
+<span class="comment"># 3. Verificar state</span>
+$ terraform state show azurerm_resource_group.existing
+
+<span class="comment"># 4. Ajustar configuração se necessário</span>
+$ terraform plan
+<span class="comment"># Deve mostrar: No changes</span>
+            </div>
+            
+            <div class="important">
+                <strong>⚠️ Importante:</strong> Import não gera configuração automaticamente. Você precisa escrever o código HCL manualmente.
+            </div>
+        </div>
+
+        <!-- Slide 21: Best Practices -->
+        <div class="slide">
+            <div class="slide-number">21 / 30</div>
+            <h1>Best Practices</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="highlight">
+                    <h4 style="color: white;">✅ Fazer</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>Usar remote state sempre</li>
+                        <li>Versionar providers</li>
+                        <li>Criar módulos reutilizáveis</li>
+                        <li>Tags em todos recursos</li>
+                        <li>terraform fmt antes de commit</li>
+                        <li>Code review em PRs</li>
+                        <li>Separar por ambiente</li>
+                        <li>Documentar módulos</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #5c6bc0, #7e57c2);">
+                    <h4 style="color: white;">❌ Evitar</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>Hardcode de valores</li>
+                        <li>Segredos em código</li>
+                        <li>State local em produção</li>
+                        <li>Módulos muito grandes</li>
+                        <li>Ignorar terraform plan</li>
+                        <li>Force unlock sem investigar</li>
+                        <li>Destruir sem backup</li>
+                        <li>Editar state manualmente</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>Estrutura de Projeto Recomendada:</h3>
+            <div class="code-block">
+project/
+├── environments/
+│   ├── dev/
+│   ├── staging/
+│   └── prod/
+├── modules/
+│   ├── networking/
+│   ├── compute/
+│   └── database/
+└── global/
+    └── terraform.tf
+            </div>
+        </div>
+
+        <!-- Slide 22: Segurança -->
+        <div class="slide">
+            <div class="slide-number">22 / 30</div>
+            <h1>Segurança em Terraform</h1>
+            
+            <h3>🔒 Gestão de Segredos:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Nunca fazer:</h4>
+                <div class="code-block" style="background: #8b0000;">
+<span class="comment"># ❌ NUNCA FAZER ISTO!</span>
+<span class="keyword">resource</span> <span class="string">"azurerm_postgresql_server"</span> <span class="string">"main"</span> {
+  <span class="variable">administrator_password</span> = <span class="string">"MyPassword123!"</span>  <span class="comment"># NUNCA!</span>
+}
+                </div>
+            </div>
+            
+            <h3>✅ Boas Práticas:</h3>
+            <div class="code-block">
+<span class="comment"># Usar Azure Key Vault</span>
+<span class="keyword">data</span> <span class="string">"azurerm_key_vault_secret"</span> <span class="string">"db_password"</span> {
+  <span class="variable">name</span>         = <span class="string">"db-password"</span>
+  <span class="variable">key_vault_id</span> = azurerm_key_vault.main.id
+}
+
+<span class="comment"># Usar variável sensível</span>
+<span class="keyword">variable</span> <span class="string">"db_password"</span> {
+  <span class="variable">type</span>      = string
+  <span class="variable">sensitive</span> = true
+}
+
+<span class="comment"># Gerar passwords aleatórias</span>
+<span class="keyword">resource</span> <span class="string">"random_password"</span> <span class="string">"db"</span> {
+  <span class="variable">length</span>  = 32
+  <span class="variable">special</span> = true
+}
+            </div>
+        </div>
+
+        <!-- Slide 23: CI/CD com Terraform -->
+        <div class="slide">
+            <div class="slide-number">23 / 30</div>
+            <h1>CI/CD Pipeline com Terraform</h1>
+            
+            <h3>GitHub Actions Example:</h3>
+            <div class="code-block">
+<span class="comment"># .github/workflows/terraform.yml</span>
+<span class="keyword">name:</span> Terraform CI/CD
+
+<span class="keyword">on:</span>
+  <span class="keyword">pull_request:</span>
+    <span class="keyword">branches:</span> [main]
+  <span class="keyword">push:</span>
+    <span class="keyword">branches:</span> [main]
+
+<span class="keyword">jobs:</span>
+  <span class="keyword">terraform:</span>
+    <span class="keyword">runs-on:</span> ubuntu-latest
+    
+    <span class="keyword">steps:</span>
+    - <span class="keyword">uses:</span> actions/checkout@v3
+    
+    - <span class="keyword">name:</span> Setup Terraform
+      <span class="keyword">uses:</span> hashicorp/setup-terraform@v2
+    
+    - <span class="keyword">name:</span> Terraform Init
+      <span class="keyword">run:</span> terraform init
+    
+    - <span class="keyword">name:</span> Terraform Format Check
+      <span class="keyword">run:</span> terraform fmt -check
+    
+    - <span class="keyword">name:</span> Terraform Plan
+      <span class="keyword">run:</span> terraform plan
+      
+    - <span class="keyword">name:</span> Terraform Apply
+      <span class="keyword">if:</span> github.ref == 'refs/heads/main'
+      <span class="keyword">run:</span> terraform apply -auto-approve
+            </div>
+        </div>
+
+        <!-- Slide 24: Terraform Cloud -->
+        <div class="slide">
+            <div class="slide-number">24 / 30</div>
+            <h1>Terraform Cloud/Enterprise</h1>
+            
+            <div class="diagram">
+                <div class="icon">☁️</div>
+                <h2>SaaS para Terraform Colaborativo</h2>
+            </div>
+            
+            <h3>Funcionalidades:</h3>
+            <ul>
+                <li>📊 <strong>Remote State Management</strong> - State seguro e versionado</li>
+                <li>🔐 <strong>Secure Variables</strong> - Gestão de segredos</li>
+                <li>🚀 <strong>Remote Runs</strong> - Execução na cloud</li>
+                <li>👥 <strong>Team Collaboration</strong> - RBAC e aprovações</li>
+                <li>📋 <strong>Policy as Code</strong> - Sentinel policies</li>
+                <li>🔄 <strong>VCS Integration</strong> - GitOps workflow</li>
+                <li>💰 <strong>Cost Estimation</strong> - Preview de custos</li>
+            </ul>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Quando usar:</h4>
+                <ul style="color: white;">
+                    <li>Equipas grandes (>5 pessoas)</li>
+                    <li>Necessidade de compliance</li>
+                    <li>Múltiplas contas cloud</li>
+                    <li>Aprovações e auditoria</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 25: Troubleshooting -->
+        <div class="slide">
+            <div class="slide-number">25 / 30</div>
+            <h1>Troubleshooting Comum</h1>
+            
+            <h3>🔍 Problemas Frequentes:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">State Lock</h4>
+                <p style="color: white;">Erro: "Error acquiring the state lock"</p>
+                <div class="code-block" style="margin-top: 10px;">
+<span class="comment"># Verificar quem tem lock</span>
+terraform force-unlock LOCK_ID
+
+<span class="comment"># ⚠️ Usar com cuidado!</span>
+                </div>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #5c6bc0, #7e57c2);">
+                <h4 style="color: white;">Drift Detection</h4>
+                <p style="color: white;">Mudanças manuais fora do Terraform</p>
+                <div class="code-block" style="margin-top: 10px;">
+<span class="comment"># Detectar drift</span>
+terraform plan -refresh-only
+
+<span class="comment"># Atualizar state</span>
+terraform apply -refresh-only
+                </div>
+            </div>
+            
+            <h3>Debug Mode:</h3>
+            <div class="code-block">
+<span class="comment"># Ativar logs detalhados</span>
+export TF_LOG=DEBUG
+export TF_LOG_PATH=terraform.log
+
+terraform plan
+            </div>
+        </div>
+
+        <!-- Slide 26: Projeto Prático -->
+        <div class="slide">
+            <div class="slide-number">26 / 30</div>
+            <h1>Projeto Prático - 3-Tier App</h1>
+            
+            <h3>🎯 Desafio: Deploy Aplicação Completa</h3>
+            
+            <div class="diagram">
+                <h3>Arquitetura:</h3>
+                <p>Frontend (Static) → Backend (API) → Database</p>
+            </div>
+            
+            <h3>Recursos a Criar:</h3>
+            <ul>
+                <li>📦 2 Resource Groups (app, data)</li>
+                <li>🌐 Virtual Network com 3 Subnets</li>
+                <li>⚖️ Application Gateway</li>
+                <li>🖥️ 2 VMs com Load Balancer</li>
+                <li>🗄️ Azure Database for PostgreSQL</li>
+                <li>🔐 Key Vault para segredos</li>
+                <li>💾 Storage Account para backups</li>
+                <li>📊 Application Insights</li>
+            </ul>
+            
+            <h3>Requisitos:</h3>
+            <ul>
+                <li>✅ Usar módulos</li>
+                <li>✅ Separar por ambiente (dev/prod)</li>
+                <li>✅ Remote state</li>
+                <li>✅ Outputs para connection strings</li>
+                <li>✅ Tags consistentes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 27: Terraform vs Pulumi vs CDK -->
+        <div class="slide">
+            <div class="slide-number">27 / 30</div>
+            <h1>Futuro do IaC</h1>
+            
+            <h3>Tendências Emergentes:</h3>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Ferramenta</th>
+                    <th>Abordagem</th>
+                    <th>Vantagens</th>
+                </tr>
+                <tr>
+                    <td><strong>Terraform</strong></td>
+                    <td>DSL (HCL)</td>
+                    <td>Maduro, grande ecosistema</td>
+                </tr>
+                <tr>
+                    <td><strong>Pulumi</strong></td>
+                    <td>Linguagens gerais</td>
+                    <td>TypeScript, Python, Go</td>
+                </tr>
+                <tr>
+                    <td><strong>AWS CDK</strong></td>
+                    <td>Linguagens gerais</td>
+                    <td>Integração AWS nativa</td>
+                </tr>
+                <tr>
+                    <td><strong>Crossplane</strong></td>
+                    <td>Kubernetes CRDs</td>
+                    <td>GitOps nativo</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>💡 Recomendação:</strong> Terraform continua sendo a escolha mais segura para multi-cloud. Considere outras ferramentas para casos específicos.
+            </div>
+        </div>
+
+        <!-- Slide 28: Recursos -->
+        <div class="slide">
+            <div class="slide-number">28 / 30</div>
+            <h1>Recursos e Documentação</h1>
+            
+            <h3>📚 Documentação Oficial</h3>
+            <ul>
+                <li>🔗 <strong>Terraform Docs:</strong> terraform.io/docs</li>
+                <li>🔗 <strong>Registry:</strong> registry.terraform.io</li>
+                <li>🔗 <strong>Learn Platform:</strong> learn.hashicorp.com</li>
+                <li>🔗 <strong>Azure Provider:</strong> registry.terraform.io/providers/hashicorp/azurerm</li>
+            </ul>
+            
+            <h3>🛠️ Ferramentas Úteis</h3>
+            <ul>
+                <li><strong>tflint</strong> - Linter para Terraform</li>
+                <li><strong>terraform-docs</strong> - Gerar documentação</li>
+                <li><strong>terragrunt</strong> - DRY wrapper</li>
+                <li><strong>checkov</strong> - Security scanning</li>
+                <li><strong>infracost</strong> - Estimativa de custos</li>
+                <li><strong>tfenv</strong> - Gestão de versões</li>
+            </ul>
+            
+            <h3>🎓 Certificação</h3>
+            <ul>
+                <li>HashiCorp Certified: Terraform Associate</li>
+            </ul>
+        </div>
+
+        <!-- Slide 29: Resumo -->
+        <div class="slide">
+            <div class="slide-number">29 / 30</div>
+            <h1>Resumo do Dia</h1>
+            
+            <h3>✅ O que Aprendemos:</h3>
+            <ul>
+                <li>Conceitos de Infrastructure as Code</li>
+                <li>Sintaxe HCL e estrutura Terraform</li>
+                <li>Providers e Resources</li>
+                <li>Variables, Outputs e Data Sources</li>
+                <li>State Management (local e remoto)</li>
+                <li>Módulos e reutilização</li>
+                <li>Workspaces para múltiplos ambientes</li>
+                <li>Best practices e segurança</li>
+                <li>CI/CD com Terraform</li>
+            </ul>
+            
+            <h3>🎯 Próximos Passos:</h3>
+            <ul>
+                <li>Migrar infraestrutura existente</li>
+                <li>Criar biblioteca de módulos</li>
+                <li>Implementar GitOps</li>
+                <li>Explorar Terraform Cloud</li>
+                <li>Preparar para certificação</li>
+            </ul>
+        </div>
+
+        <!-- Slide 30: Fim -->
+        <div class="slide">
+            <div class="slide-number">30 / 30</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon" style="font-size: 5em;">🏗️</div>
+                <h1 style="border: none;">Obrigado!</h1>
+                <h2>Infrastructure as Code Master! 🎉</h2>
+                <p style="margin-top: 40px; font-size: 1.3em;">
+                    Amanhã: <strong>Dia 5 - Kubernetes</strong><br>
+                    Orquestração de Containers em Escala
+                </p>
+                <div class="highlight" style="margin-top: 40px;">
+                    <p style="color: white;">
+                        📧 Contacto: formador@exemplo.com<br>
+                        💻 GitHub: github.com/formador<br>
+                        🏗️ Terraform Registry: registry.terraform.io/namespaces/formador
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+        <button onclick="previousSlide()">← Anterior</button>
+        <button onclick="nextSlide()">Próximo →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia 4 - Terraform IaC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7e57c2 0%, #5c6bc0 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 60px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        h1 {
+            color: #7e57c2;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #5c6bc0;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #5c6bc0;
+            font-size: 2.2em;
+            margin: 30px 0 20px;
+        }
+        
+        h3 {
+            color: #7e57c2;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        
+        ul {
+            margin-left: 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment {
+            color: #6a9955;
+        }
+        
+        .code-block .keyword {
+            color: #c678dd;
+        }
+        
+        .code-block .string {
+            color: #98c379;
+        }
+        
+        .code-block .variable {
+            color: #e06c75;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #7e57c2;
+            border: 2px solid #7e57c2;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #7e57c2;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #7e57c2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f3ff;
+            border-radius: 15px;
+        }
+        
+        .icon {
+            font-size: 3em;
+            color: #7e57c2;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #7e57c2;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table th {
+            background: #7e57c2;
+            color: white;
+        }
+        
+        .workflow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(to right, #f5f3ff, #ebe7ff);
+            border-radius: 15px;
+        }
+        
+        .workflow-step {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }

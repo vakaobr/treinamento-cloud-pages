@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia 5 - Kubernetes e DevOps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #326ce5 0%, #1e88e5 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 60px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        h1 {
+            color: #326ce5;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1e88e5;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #1e88e5;
+            font-size: 2.2em;
+            margin: 30px 0 20px;
+        }
+        
+        h3 {
+            color: #326ce5;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin: 15px 0;
+        }
+        
+        ul {
+            margin-left: 30px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #326ce5, #1e88e5);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            line-height: 1.5;
+            white-space: pre; 
+        }
+        
+        .code-block .comment {
+            color: #6a9955;
+        }
+        
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+        
+        .code-block .string {
+            color: #f1fa8c;
+        }
+        
+        .code-block .variable {
+            color: #8be9fd;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #326ce5;
+            border: 2px solid #326ce5;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #326ce5;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #326ce5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 15px;
+        }
+        
+        .icon {
+            font-size: 3em;
+            color: #326ce5;
+            margin: 20px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #326ce5;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .comparison-table th {
+            background: #326ce5;
+            color: white;
+        }
+        
+        .k8s-architecture {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(to right, #f0f8ff, #e1f5fe);
+            border-radius: 15px;
+        }
+        
+        .architecture-component {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <div class="slide-number">1 / 35</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon">☸️</div>
+                <h1 style="border: none; font-size: 4em;">Kubernetes</h1>
+                <h2>Orquestração de Containers em Escala</h2>
+                <p style="font-size: 1.5em; color: #666; margin-top: 40px;">Dia 5 - Formação em Cloud Computing</p>
+                <p style="margin-top: 60px; color: #999;">Pressione → para continuar</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <div class="slide-number">2 / 35</div>
+            <h1>Agenda do Dia 5</h1>
+            <div class="highlight">
+                <h3 style="color: white;">Manhã (09:00 - 13:00)</h3>
+                <ul style="color: white;">
+                    <li>Introdução ao Kubernetes</li>
+                    <li>Arquitetura e Componentes</li>
+                    <li>Objetos Principais (Pods, Services, Deployments)</li>
+                    <li>kubectl - Linha de Comando</li>
+                    <li>ConfigMaps e Secrets</li>
+                </ul>
+            </div>
+            <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                <h3 style="color: white;">Tarde (14:00 - 18:00)</h3>
+                <ul style="color: white;">
+                    <li>Azure Kubernetes Service (AKS)</li>
+                    <li>Helm - Package Manager</li>
+                    <li>CI/CD com Kubernetes</li>
+                    <li>Monitoring e Logging</li>
+                    <li>Projeto Final Integrado</li>
+                </ul>
+            </div>
+        </div>
+
+ <!-- Slide 3: Problema de Orquestração -->
+        <div class="slide">
+            <div class="slide-number">3 / 35</div>
+            <h1>O Problema: Gestão de Containers em Escala</h1>
+            
+            <div class="diagram">
+                <h3>😰 Desafios com Múltiplos Containers</h3>
+            </div>
+            
+            <ul>
+                <li>❌ <strong>Escalabilidade Manual</strong> - Como gerir 100+ containers?</li>
+                <li>❌ <strong>Service Discovery</strong> - Como containers se encontram?</li>
+                <li>❌ <strong>Load Balancing</strong> - Distribuir tráfego eficientemente</li>
+                <li>❌ <strong>Self-healing</strong> - Recuperação automática de falhas</li>
+                <li>❌ <strong>Rolling Updates</strong> - Atualizar sem downtime</li>
+                <li>❌ <strong>Gestão de Configuração</strong> - Segredos e configs</li>
+            </ul>
+            
+            <div class="important">
+                <strong>💡 Cenário Real:</strong> Empresa com 50 microserviços, cada um com múltiplas instâncias. Docker Compose não escala. Precisamos de orquestração!
+            </div>
+        </div>
+
+        <!-- Slide 4: O que é Kubernetes -->
+        <div class="slide">
+            <div class="slide-number">4 / 35</div>
+            <h1>Kubernetes (K8s)</h1>
+            
+            <div class="diagram">
+                <div class="icon">☸️</div>
+                <h2>Plataforma de Orquestração de Containers</h2>
+            </div>
+            
+            <h3>O que é Kubernetes?</h3>
+            <p>Sistema open-source para automatizar deployment, scaling e gestão de aplicações containerizadas.</p>
+            
+            <h3>História:</h3>
+            <ul>
+                <li>🏢 Criado pelo Google (baseado no Borg)</li>
+                <li>📅 Open source desde 2014</li>
+                <li>☁️ Agora mantido pela CNCF</li>
+                <li>🌍 Padrão de facto para orquestração</li>
+            </ul>
+            
+            <div class="highlight">
+                <h3 style="color: white;">Por que "K8s"?</h3>
+                <p style="color: white;">K + 8 letras (ubernete) + s = K8s</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Benefícios -->
+        <div class="slide">
+            <div class="slide-number">5 / 35</div>
+            <h1>Benefícios do Kubernetes</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="highlight">
+                    <h4 style="color: white;">🚀 Escalabilidade</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>Horizontal Pod Autoscaling</li>
+                        <li>Cluster Autoscaling</li>
+                        <li>Manual ou automático</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                    <h4 style="color: white;">🔄 Self-healing</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>Restart de containers falhados</li>
+                        <li>Substituição de nodes</li>
+                        <li>Health checks</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                    <h4 style="color: white;">📦 Gestão de Deploy</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>Rolling updates</li>
+                        <li>Rollback automático</li>
+                        <li>Canary deployments</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight">
+                    <h4 style="color: white;">🌐 Service Discovery</h4>
+                    <ul style="color: white; font-size: 1em;">
+                        <li>DNS interno</li>
+                        <li>Load balancing</li>
+                        <li>Service mesh</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Arquitetura Kubernetes -->
+        <div class="slide">
+            <div class="slide-number">6 / 35</div>
+            <h1>Arquitetura Kubernetes</h1>
+            
+            <div class="k8s-architecture">
+                <div style="flex: 1;">
+                    <h3>Control Plane (Master)</h3>
+                    <div class="architecture-component">
+                        <p><strong>API Server</strong></p>
+                        <p style="font-size: 0.9em;">Interface central</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>etcd</strong></p>
+                        <p style="font-size: 0.9em;">Key-value store</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>Scheduler</strong></p>
+                        <p style="font-size: 0.9em;">Atribui pods a nodes</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>Controller Manager</strong></p>
+                        <p style="font-size: 0.9em;">Mantém estado desejado</p>
+                    </div>
+                </div>
+                
+                <div style="font-size: 3em; margin: 0 30px;">⟷</div>
+                
+                <div style="flex: 1;">
+                    <h3>Worker Nodes</h3>
+                    <div class="architecture-component">
+                        <p><strong>kubelet</strong></p>
+                        <p style="font-size: 0.9em;">Agente do node</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>kube-proxy</strong></p>
+                        <p style="font-size: 0.9em;">Network proxy</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>Container Runtime</strong></p>
+                        <p style="font-size: 0.9em;">Docker/containerd</p>
+                    </div>
+                    <div class="architecture-component" style="margin-top: 10px;">
+                        <p><strong>Pods</strong></p>
+                        <p style="font-size: 0.9em;">Aplicações</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Conceitos Fundamentais -->
+        <div class="slide">
+            <div class="slide-number">7 / 35</div>
+            <h1>Conceitos Fundamentais</h1>
+            
+            <h3>🏷️ Labels e Selectors</h3>
+            <p>Pares chave-valor para organizar e selecionar objetos</p>
+            
+            <h3>📛 Namespaces</h3>
+            <p>Clusters virtuais dentro do cluster físico</p>
+            
+            <h3>🎯 Declarativo vs Imperativo</h3>
+            <ul>
+                <li><strong>Declarativo:</strong> Descreve estado desejado (YAML)</li>
+                <li><strong>Imperativo:</strong> Comandos diretos (kubectl run)</li>
+            </ul>
+            
+            <h3>🔄 Reconciliation Loop</h3>
+            <p>Kubernetes constantemente compara estado atual vs desejado</p>
+            
+            <div class="code-block">
+<span class="comment"># Exemplo de Label</span>
+<span class="keyword">metadata:</span>
+  <span class="variable">labels:</span>
+    app: nginx
+    environment: production
+    tier: frontend
+            </div>
+        </div>
+
+        <!-- Slide 8: Pod -->
+        <div class="slide">
+            <div class="slide-number">8 / 35</div>
+            <h1>Pod - Unidade Básica</h1>
+            
+            <div class="diagram">
+                <div class="icon">🥜</div>
+                <h3>Menor unidade deployável em Kubernetes</h3>
+            </div>
+            
+            <h3>Características:</h3>
+            <ul>
+                <li>Um ou mais containers (geralmente um)</li>
+                <li>Compartilham rede e storage</li>
+                <li>Têm IP único no cluster</li>
+                <li>Efémeros por natureza</li>
+            </ul>
+            
+            <h3>pod.yaml:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> Pod
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> nginx-pod
+  <span class="variable">labels:</span>
+    app: nginx
+<span class="keyword">spec:</span>
+  <span class="variable">containers:</span>
+  - <span class="variable">name:</span> nginx
+    <span class="variable">image:</span> nginx:alpine
+    <span class="variable">ports:</span>
+    - <span class="variable">containerPort:</span> 80
+            </div>
+        </div>
+
+        <!-- Slide 9: ReplicaSet -->
+        <div class="slide">
+            <div class="slide-number">9 / 35</div>
+            <h1>ReplicaSet</h1>
+            
+            <h3>Mantém número desejado de réplicas de pods</h3>
+            
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> apps/v1
+<span class="keyword">kind:</span> ReplicaSet
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> nginx-replicaset
+<span class="keyword">spec:</span>
+  <span class="variable">replicas:</span> 3
+  <span class="variable">selector:</span>
+    <span class="variable">matchLabels:</span>
+      app: nginx
+  <span class="variable">template:</span>
+    <span class="variable">metadata:</span>
+      <span class="variable">labels:</span>
+        app: nginx
+    <span class="variable">spec:</span>
+      <span class="variable">containers:</span>
+      - <span class="variable">name:</span> nginx
+        <span class="variable">image:</span> nginx:alpine
+        <span class="variable">ports:</span>
+        - <span class="variable">containerPort:</span> 80
+            </div>
+            
+            <div class="important">
+                <strong>💡 Nota:</strong> ReplicaSets raramente são usados diretamente (não é uma boa prática, apesar de ser possível). Nesses casos, sempre use Deployments!
+            </div>
+        </div>
+
+        <!-- Slide 10: Deployment -->
+        <div class="slide">
+            <div class="slide-number">10 / 35</div>
+            <h1>Deployment - O Mais Importante</h1>
+            
+            <div class="diagram">
+                <div class="icon">🚀</div>
+                <h3>Gestão declarativa de ReplicaSets</h3>
+            </div>
+            
+            <h3>Funcionalidades:</h3>
+            <ul>
+                <li>✅ Rolling updates</li>
+                <li>✅ Rollback</li>
+                <li>✅ Scaling</li>
+                <li>✅ Self-healing</li>
+            </ul>
+            
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> apps/v1
+<span class="keyword">kind:</span> Deployment
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> nginx-deployment
+<span class="keyword">spec:</span>
+  <span class="variable">replicas:</span> 3
+  <span class="variable">strategy:</span>
+    <span class="variable">type:</span> RollingUpdate
+    <span class="variable">rollingUpdate:</span>
+      <span class="variable">maxSurge:</span> 1
+      <span class="variable">maxUnavailable:</span> 1
+  <span class="variable">selector:</span>
+    <span class="variable">matchLabels:</span>
+      app: nginx
+  <span class="variable">template:</span>
+    <span class="variable">metadata:</span>
+      <span class="variable">labels:</span>
+        app: nginx
+    <span class="variable">spec:</span>
+      <span class="variable">containers:</span>
+      - <span class="variable">name:</span> nginx
+        <span class="variable">image:</span> nginx:1.21
+            </div>
+        </div>
+
+        <!-- Slide 11: Service -->
+        <div class="slide">
+            <div class="slide-number">11 / 35</div>
+            <h1>Service - Exposição de Pods</h1>
+            
+            <h3>Abstração para expor pods</h3>
+            
+            <h3>Tipos de Service:</h3>
+            <ul>
+                <li>🔵 <strong>ClusterIP</strong> - IP interno (padrão)</li>
+                <li>🟢 <strong>NodePort</strong> - Porta em cada node</li>
+                <li>🔴 <strong>LoadBalancer</strong> - LB externo (cloud)</li>
+                <li>⚪ <strong>ExternalName</strong> - DNS CNAME</li>
+            </ul>
+            
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> Service
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> nginx-service
+<span class="keyword">spec:</span>
+  <span class="variable">type:</span> LoadBalancer
+  <span class="variable">selector:</span>
+    app: nginx
+  <span class="variable">ports:</span>
+  - <span class="variable">protocol:</span> TCP
+    <span class="variable">port:</span> 80
+    <span class="variable">targetPort:</span> 80
+            </div>
+        </div>
+
+        <!-- Slide 12: Ingress -->
+        <div class="slide">
+            <div class="slide-number">12 / 35</div>
+            <h1>Ingress - Roteamento HTTP/HTTPS</h1>
+            
+            <h3>Gestão de acesso externo a serviços</h3>
+            
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> networking.k8s.io/v1
+<span class="keyword">kind:</span> Ingress
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> app-ingress
+  <span class="variable">annotations:</span>
+    nginx.ingress.kubernetes.io/rewrite-target: /
+<span class="keyword">spec:</span>
+  <span class="variable">rules:</span>
+  - <span class="variable">host:</span> app.exemplo.com
+    <span class="variable">http:</span>
+      <span class="variable">paths:</span>
+      - <span class="variable">path:</span> /api
+        <span class="variable">pathType:</span> Prefix
+        <span class="variable">backend:</span>
+          <span class="variable">service:</span>
+            <span class="variable">name:</span> api-service
+            <span class="variable">port:</span>
+              <span class="variable">number:</span> 80
+      - <span class="variable">path:</span> /
+        <span class="variable">pathType:</span> Prefix
+        <span class="variable">backend:</span>
+          <span class="variable">service:</span>
+            <span class="variable">name:</span> web-service
+            <span class="variable">port:</span>
+              <span class="variable">number:</span> 80
+            </div>
+            
+            <h3>Benefícios:</h3>
+            <ul>
+                <li>SSL/TLS termination</li>
+                <li>Name-based virtual hosting</li>
+                <li>Path-based routing</li>
+            </ul>
+        </div>
+
+        <!-- Slide 13: ConfigMap e Secret -->
+        <div class="slide">
+            <div class="slide-number">13 / 35</div>
+            <h1>ConfigMap e Secret</h1>
+            
+            <h3>ConfigMap - Configurações:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> ConfigMap
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> app-config
+<span class="keyword">data:</span>
+  <span class="variable">database_url:</span> "postgres://localhost/mydb"
+  <span class="variable">log_level:</span> "debug"
+            </div>
+            
+            <h3>Secret - Dados Sensíveis:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> Secret
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> app-secret
+<span class="keyword">type:</span> Opaque
+<span class="keyword">data:</span>
+  <span class="variable">username:</span> YWRtaW4=  <span class="comment"># base64 encoded</span>
+  <span class="variable">password:</span> cGFzc3dvcmQ=
+            </div>
+            
+            <h3>Usar em Pod:</h3>
+            <div class="code-block">
+<span class="variable">envFrom:</span>
+- <span class="variable">configMapRef:</span>
+    <span class="variable">name:</span> app-config
+- <span class="variable">secretRef:</span>
+    <span class="variable">name:</span> app-secret
+            </div>
+        </div>
+
+        <!-- Slide 14: Volumes -->
+        <div class="slide">
+            <div class="slide-number">14 / 35</div>
+            <h1>Volumes - Persistência</h1>
+            
+            <h3>Tipos de Volumes:</h3>
+            <ul>
+                <li>📁 <strong>emptyDir</strong> - Temporário, vive com o pod</li>
+                <li>💾 <strong>hostPath</strong> - Diretório do host</li>
+                <li>☁️ <strong>PersistentVolume</strong> - Storage abstrato</li>
+                <li>🔷 <strong>Cloud Volumes</strong> - Azure Disk, AWS EBS</li>
+            </ul>
+            
+            <h3>PersistentVolumeClaim:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> PersistentVolumeClaim
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> mysql-pvc
+<span class="keyword">spec:</span>
+  <span class="variable">accessModes:</span>
+    - ReadWriteOnce
+  <span class="variable">resources:</span>
+    <span class="variable">requests:</span>
+      <span class="variable">storage:</span> 10Gi
+  <span class="variable">storageClassName:</span> azure-disk
+            </div>
+            
+            <h3>Usar no Pod:</h3>
+            <div class="code-block">
+<span class="variable">volumes:</span>
+- <span class="variable">name:</span> mysql-storage
+  <span class="variable">persistentVolumeClaim:</span>
+    <span class="variable">claimName:</span> mysql-pvc
+            </div>
+        </div>
+
+        <!-- Slide 15: kubectl -->
+        <div class="slide">
+            <div class="slide-number">15 / 35</div>
+            <h1>kubectl - CLI do Kubernetes</h1>
+            
+            <h3>Comandos Essenciais:</h3>
+            <div class="code-block">
+<span class="comment"># Recursos básicos</span>
+kubectl get pods
+kubectl get services
+kubectl get deployments
+kubectl get all
+
+<span class="comment"># Criar recursos</span>
+kubectl apply -f deployment.yaml
+kubectl create deployment nginx --image=nginx
+
+<span class="comment"># Detalhes</span>
+kubectl describe pod pod-name
+kubectl logs pod-name
+kubectl logs -f pod-name <span class="comment"># follow</span>
+
+<span class="comment"># Executar comandos</span>
+kubectl exec -it pod-name -- bash
+
+<span class="comment"># Port forward</span>
+kubectl port-forward pod-name 8080:80
+
+<span class="comment"># Escalar</span>
+kubectl scale deployment nginx --replicas=5
+
+<span class="comment"># Deletar</span>
+kubectl delete pod pod-name
+kubectl delete -f deployment.yaml
+            </div>
+        </div>
+
+        <!-- Slide 16: Namespaces -->
+        <div class="slide">
+            <div class="slide-number">16 / 35</div>
+            <h1>Namespaces - Isolamento Lógico</h1>
+            
+            <h3>Organização e Multi-tenancy:</h3>
+            
+            <div class="code-block">
+<span class="comment"># Criar namespace</span>
+kubectl create namespace development
+kubectl create namespace production
+
+<span class="comment"># Usar namespace</span>
+kubectl get pods -n development
+kubectl apply -f app.yaml -n production
+
+<span class="comment"># Definir namespace padrão</span>
+kubectl config set-context --current --namespace=development
+            </div>
+            
+            <h3>Namespace no YAML:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> v1
+<span class="keyword">kind:</span> Namespace
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> staging
+---
+<span class="keyword">apiVersion:</span> apps/v1
+<span class="keyword">kind:</span> Deployment
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> app
+  <span class="variable">namespace:</span> staging <span class="comment"># Deploy no namespace staging</span>
+            </div>
+            
+            <h3>Namespaces Padrão:</h3>
+            <ul>
+                <li><strong>default</strong> - Namespace padrão</li>
+                <li><strong>kube-system</strong> - Componentes do sistema</li>
+                <li><strong>kube-public</strong> - Recursos públicos</li>
+            </ul>
+        </div>
+
+        <!-- Slide 17: Health Checks -->
+        <div class="slide">
+            <div class="slide-number">17 / 35</div>
+            <h1>Health Checks - Probes</h1>
+            
+            <h3>Tipos de Probes:</h3>
+            <ul>
+                <li>💚 <strong>Liveness</strong> - Container está vivo?</li>
+                <li>🟡 <strong>Readiness</strong> - Pronto para receber tráfego?</li>
+                <li>🚀 <strong>Startup</strong> - Aplicação iniciou? (K8s 1.16+)</li>
+            </ul>
+            
+            <div class="code-block">
+<span class="keyword">spec:</span>
+  <span class="variable">containers:</span>
+  - <span class="variable">name:</span> app
+    <span class="variable">image:</span> myapp:v1
+    <span class="variable">livenessProbe:</span>
+      <span class="variable">httpGet:</span>
+        <span class="variable">path:</span> /health
+        <span class="variable">port:</span> 8080
+      <span class="variable">initialDelaySeconds:</span> 30
+      <span class="variable">periodSeconds:</span> 10
+      <span class="variable">timeoutSeconds:</span> 5
+      <span class="variable">failureThreshold:</span> 3
+    <span class="variable">readinessProbe:</span>
+      <span class="variable">httpGet:</span>
+        <span class="variable">path:</span> /ready
+        <span class="variable">port:</span> 8080
+      <span class="variable">initialDelaySeconds:</span> 5
+      <span class="variable">periodSeconds:</span> 5
+            </div>
+        </div>
+
+        <!-- Slide 18: Resource Management -->
+        <div class="slide">
+            <div class="slide-number">18 / 35</div>
+            <h1>Gestão de Recursos</h1>
+            
+            <h3>Requests e Limits:</h3>
+            
+            <div class="code-block">
+<span class="keyword">spec:</span>
+  <span class="variable">containers:</span>
+  - <span class="variable">name:</span> app
+    <span class="variable">image:</span> myapp:v1
+    <span class="variable">resources:</span>
+      <span class="variable">requests:</span>  <span class="comment"># Mínimo garantido</span>
+        <span class="variable">memory:</span> "256Mi"
+        <span class="variable">cpu:</span> "250m"  <span class="comment"># 0.25 CPU</span>
+      <span class="variable">limits:</span>    <span class="comment"># Máximo permitido</span>
+        <span class="variable">memory:</span> "512Mi"
+        <span class="variable">cpu:</span> "500m"
+            </div>
+            
+            <h3>QoS Classes:</h3>
+            <ul>
+                <li><strong>Guaranteed</strong> - requests = limits</li>
+                <li><strong>Burstable</strong> - requests < limits</li>
+                <li><strong>BestEffort</strong> - sem requests/limits</li>
+            </ul>
+            
+            <div class="important">
+                <strong>💡 Best Practice:</strong> Sempre defina requests e limits para produção!
+            </div>
+        </div>
+
+        <!-- Slide 19: Azure Kubernetes Service -->
+        <div class="slide">
+            <div class="slide-number">19 / 35</div>
+            <h1>Azure Kubernetes Service (AKS)</h1>
+            
+            <div class="diagram">
+                <div class="icon">☁️</div>
+                <h2>Kubernetes Gerido no Azure</h2>
+            </div>
+            
+            <h3>Benefícios do AKS:</h3>
+            <ul>
+                <li>✅ Control plane gerido (grátis!)</li>
+                <li>✅ Atualizações automáticas</li>
+                <li>✅ Integração com Azure AD</li>
+                <li>✅ Azure Monitor integrado</li>
+                <li>✅ Autoscaling de nodes</li>
+                <li>✅ Azure Container Registry</li>
+            </ul>
+            
+            <h3>Criar Cluster AKS:</h3>
+            <div class="code-block">
+<span class="comment"># Via Azure CLI</span>
+az aks create \
+  --resource-group myRG \
+  --name myAKSCluster \
+  --node-count 3 \
+  --node-vm-size Standard_B2s \
+  --generate-ssh-keys
+
+<span class="comment"># Obter credenciais</span>
+az aks get-credentials \
+  --resource-group myRG \
+  --name myAKSCluster
+            </div>
+        </div>
+
+        <!-- Slide 20: Helm -->
+        <div class="slide">
+            <div class="slide-number">20 / 35</div>
+            <h1>Helm - Package Manager</h1>
+            
+            <div class="diagram">
+                <div class="icon">⚓</div>
+                <h2>O "apt/yum" do Kubernetes</h2>
+            </div>
+            
+            <h3>Conceitos:</h3>
+            <ul>
+                <li>📦 <strong>Chart</strong> - Pacote Helm</li>
+                <li>🚀 <strong>Release</strong> - Instância de um chart</li>
+                <li>🏪 <strong>Repository</strong> - Onde charts são armazenados</li>
+            </ul>
+            
+            <h3>Comandos Helm:</h3>
+            <div class="code-block">
+<span class="comment"># Adicionar repositório</span>
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+<span class="comment"># Pesquisar charts</span>
+helm search repo wordpress
+
+<span class="comment"># Instalar chart</span>
+helm install my-wordpress bitnami/wordpress
+
+<span class="comment"># Listar releases</span>
+helm list
+
+<span class="comment"># Atualizar release</span>
+helm upgrade my-wordpress bitnami/wordpress
+
+<span class="comment"># Desinstalar</span>
+helm uninstall my-wordpress
+            </div>
+        </div>
+        
+        <!-- Slide 21: Criando um Chart Helm -->
+        <div class="slide">
+            <div class="slide-number">21 / 35</div>
+            <h1>Criando Chart Helm</h1>
+            
+            <h3>Estrutura de um Chart:</h3>
+            <div class="code-block">
+mychart/
+├── Chart.yaml          <span class="comment"># Metadados do chart</span>
+├── values.yaml         <span class="comment"># Valores padrão</span>
+├── templates/          <span class="comment"># Templates Kubernetes</span>
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── ingress.yaml
+└── charts/            <span class="comment"># Dependências</span>
+            </div>
+            
+            <h3>values.yaml:</h3>
+            <div class="code-block">
+<span class="variable">replicaCount:</span> 3
+<span class="variable">image:</span>
+  <span class="variable">repository:</span> nginx
+  <span class="variable">tag:</span> "1.21"
+  <span class="variable">pullPolicy:</span> IfNotPresent
+<span class="variable">service:</span>
+  <span class="variable">type:</span> LoadBalancer
+  <span class="variable">port:</span> 80
+            </div>
+            
+            <h3>Template com valores:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> apps/v1
+<span class="keyword">kind:</span> Deployment
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> {{ .Release.Name }}-deployment
+<span class="keyword">spec:</span>
+  <span class="variable">replicas:</span> {{ .Values.replicaCount }}
+            </div>
+        </div>
+
+        <!-- Slide 22: CI/CD com Kubernetes -->
+        <div class="slide">
+            <div class="slide-number">22 / 35</div>
+            <h1>CI/CD Pipeline com Kubernetes</h1>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(to right, #f0f8ff, #e1f5fe); padding: 30px; border-radius: 15px;">
+                <div style="display: flex; justify-content: space-around; align-items: center;">
+                    <div style="text-align: center;">
+                        <div class="icon">📝</div>
+                        <p>Code</p>
+                    </div>
+                    <div>→</div>
+                    <div style="text-align: center;">
+                        <div class="icon">🔨</div>
+                        <p>Build</p>
+                    </div>
+                    <div>→</div>
+                    <div style="text-align: center;">
+                        <div class="icon">🐳</div>
+                        <p>Container</p>
+                    </div>
+                    <div>→</div>
+                    <div style="text-align: center;">
+                        <div class="icon">📦</div>
+                        <p>Registry</p>
+                    </div>
+                    <div>→</div>
+                    <div style="text-align: center;">
+                        <div class="icon">☸️</div>
+                        <p>Deploy</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>GitHub Actions Example:</h3>
+            <div class="code-block">
+<span class="keyword">name:</span> Deploy to AKS
+<span class="keyword">on:</span>
+  <span class="keyword">push:</span>
+    <span class="keyword">branches:</span> [main]
+<span class="keyword">jobs:</span>
+  <span class="keyword">deploy:</span>
+    <span class="keyword">runs-on:</span> ubuntu-latest
+    <span class="keyword">steps:</span>
+    - <span class="keyword">uses:</span> actions/checkout@v3
+    
+    - <span class="keyword">name:</span> Build and push Docker image
+      <span class="keyword">run:</span> |
+        docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }} .
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }}
+    
+    - <span class="keyword">name:</span> Deploy to Kubernetes
+      <span class="keyword">run:</span> |
+        kubectl set image deployment/app app=${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }}
+            </div>
+        </div>
+
+        <!-- Slide 23: GitOps com ArgoCD -->
+        <div class="slide">
+            <div class="slide-number">23 / 35</div>
+            <h1>GitOps com ArgoCD</h1>
+            
+            <div class="diagram">
+                <div class="icon">🔄</div>
+                <h2>Git como Single Source of Truth</h2>
+            </div>
+            
+            <h3>Princípios GitOps:</h3>
+            <ul>
+                <li>📝 Declarativo - Tudo em Git</li>
+                <li>🔄 Versionado - Histórico completo</li>
+                <li>🤖 Automatizado - Pull-based deployment</li>
+                <li>🔍 Observável - Estado sempre visível</li>
+            </ul>
+            
+            <h3>Instalar ArgoCD:</h3>
+            <div class="code-block">
+<span class="comment"># Criar namespace</span>
+kubectl create namespace argocd
+
+<span class="comment"># Instalar ArgoCD</span>
+kubectl apply -n argocd -f \
+  https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+<span class="comment"># Expor UI</span>
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+<span class="comment"># Get admin password</span>
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+            </div>
+        </div>
+
+        <!-- Slide 24: Monitoring com Prometheus -->
+        <div class="slide">
+            <div class="slide-number">24 / 35</div>
+            <h1>Monitoring - Prometheus & Grafana</h1>
+            
+            <h3>Stack de Observabilidade:</h3>
+            <ul>
+                <li>📊 <strong>Prometheus</strong> - Métricas</li>
+                <li>📈 <strong>Grafana</strong> - Dashboards</li>
+                <li>🚨 <strong>AlertManager</strong> - Alertas</li>
+                <li>📝 <strong>Loki</strong> - Logs</li>
+            </ul>
+            
+            <h3>Instalar com Helm:</h3>
+            <div class="code-block">
+<span class="comment"># Adicionar repo</span>
+helm repo add prometheus-community \
+  https://prometheus-community.github.io/helm-charts
+
+<span class="comment"># Instalar stack completa</span>
+helm install monitoring \
+  prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+
+<span class="comment"># Port forward Grafana</span>
+kubectl port-forward -n monitoring \
+  svc/monitoring-grafana 3000:80
+
+<span class="comment"># Default login: admin/prom-operator</span>
+            </div>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Métricas Importantes:</h4>
+                <ul style="color: white; font-size: 0.9em;">
+                    <li>CPU/Memory utilization</li>
+                    <li>Pod restart count</li>
+                    <li>Request latency</li>
+                    <li>Error rate</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 25: Service Mesh - Istio -->
+        <div class="slide">
+            <div class="slide-number">25 / 35</div>
+            <h1>Service Mesh com Istio</h1>
+            
+            <div class="diagram">
+                <div class="icon">🕸️</div>
+                <h2>Gestão Avançada de Tráfego</h2>
+            </div>
+            
+            <h3>Funcionalidades:</h3>
+            <ul>
+                <li>🔒 mTLS automático</li>
+                <li>📊 Observabilidade detalhada</li>
+                <li>🚦 Traffic management</li>
+                <li>💉 Fault injection</li>
+                <li>🔄 Circuit breaking</li>
+                <li>🎯 A/B testing, Canary</li>
+            </ul>
+            
+            <h3>Virtual Service Example:</h3>
+            <div class="code-block">
+<span class="keyword">apiVersion:</span> networking.istio.io/v1beta1
+<span class="keyword">kind:</span> VirtualService
+<span class="keyword">metadata:</span>
+  <span class="variable">name:</span> reviews
+<span class="keyword">spec:</span>
+  <span class="variable">http:</span>
+  - <span class="variable">match:</span>
+    - <span class="variable">headers:</span>
+        <span class="variable">end-user:</span>
+          <span class="variable">exact:</span> jason
+    <span class="variable">route:</span>
+    - <span class="variable">destination:</span>
+        <span class="variable">host:</span> reviews
+        <span class="variable">subset:</span> v2  <span class="comment"># Canary for specific user</span>
+  - <span class="variable">route:</span>
+    - <span class="variable">destination:</span>
+        <span class="variable">host:</span> reviews
+        <span class="variable">subset:</span> v1
+            </div>
+        </div>
+
+        <!-- Slide 26: Autoscaling -->
+        <div class="slide">
+            <div class="slide-number">26 / 35</div>
+            <h1>Autoscaling</h1>
+            
+            <h3>Tipos de Autoscaling:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">HPA - Horizontal Pod Autoscaler</h4>
+                <p style="color: white;">Escala número de pods baseado em métricas</p>
+                <div class="code-block" style="margin-top: 10px;">
+kubectl autoscale deployment nginx \
+  --cpu-percent=70 \
+  --min=2 \
+  --max=10
+                </div>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                <h4 style="color: white;">VPA - Vertical Pod Autoscaler</h4>
+                <p style="color: white;">Ajusta resources requests/limits</p>
+            </div>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Cluster Autoscaler</h4>
+                <p style="color: white;">Adiciona/remove nodes do cluster</p>
+                <div class="code-block" style="margin-top: 10px;">
+az aks update \
+  --resource-group myRG \
+  --name myAKS \
+  --enable-cluster-autoscaler \
+  --min-count 1 \
+  --max-count 5
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Security Best Practices -->
+        <div class="slide">
+            <div class="slide-number">27 / 35</div>
+            <h1>Security Best Practices</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="highlight">
+                    <h4 style="color: white;">🔐 RBAC</h4>
+                    <ul style="color: white; font-size: 0.9em;">
+                        <li>Princípio do menor privilégio</li>
+                        <li>Service accounts dedicadas</li>
+                        <li>Roles granulares</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                    <h4 style="color: white;">🛡️ Network Policies</h4>
+                    <ul style="color: white; font-size: 0.9em;">
+                        <li>Segmentação de rede</li>
+                        <li>Zero trust networking</li>
+                        <li>Egress control</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                    <h4 style="color: white;">📦 Pod Security</h4>
+                    <ul style="color: white; font-size: 0.9em;">
+                        <li>Non-root containers</li>
+                        <li>Read-only filesystem</li>
+                        <li>Security contexts</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight">
+                    <h4 style="color: white;">🔍 Scanning</h4>
+                    <ul style="color: white; font-size: 0.9em;">
+                        <li>Image vulnerability scanning</li>
+                        <li>Runtime protection</li>
+                        <li>Compliance checks</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>Security Context Example:</h3>
+            <div class="code-block">
+<span class="variable">securityContext:</span>
+  <span class="variable">runAsNonRoot:</span> true
+  <span class="variable">runAsUser:</span> 1000
+  <span class="variable">readOnlyRootFilesystem:</span> true
+  <span class="variable">capabilities:</span>
+    <span class="variable">drop:</span>
+      - ALL
+            </div>
+        </div>
+
+        <!-- Slide 28: Troubleshooting -->
+        <div class="slide">
+            <div class="slide-number">28 / 35</div>
+            <h1>Troubleshooting Kubernetes</h1>
+            
+            <h3>🔍 Comandos de Debug:</h3>
+            
+            <div class="code-block">
+<span class="comment"># Pod não inicia</span>
+kubectl describe pod pod-name
+kubectl logs pod-name --previous
+
+<span class="comment"># Problemas de rede</span>
+kubectl exec -it pod-name -- nslookup service-name
+kubectl get endpoints
+
+<span class="comment"># Resource issues</span>
+kubectl top nodes
+kubectl top pods
+
+<span class="comment"># Events do cluster</span>
+kubectl get events --sort-by='.lastTimestamp'
+
+<span class="comment"># Debug com ephemeral container</span>
+kubectl debug pod-name -it --image=busybox
+            </div>
+            
+            <h3>Problemas Comuns:</h3>
+            <ul>
+                <li>❌ <strong>ImagePullBackOff</strong> - Verificar nome da imagem e registry</li>
+                <li>❌ <strong>CrashLoopBackOff</strong> - Verificar logs e liveness probe</li>
+                <li>❌ <strong>Pending</strong> - Verificar resources e node capacity</li>
+                <li>❌ <strong>No endpoints</strong> - Verificar selector labels</li>
+            </ul>
+        </div>
+
+        <!-- Slide 29: Caso de Uso Real -->
+        <div class="slide">
+            <div class="slide-number">29 / 35</div>
+            <h1>Caso de Uso: E-commerce em Angola</h1>
+            
+            <h3>🛒 Arquitetura Microserviços:</h3>
+            
+            <div class="diagram">
+                <p><strong>Frontend</strong> → <strong>API Gateway</strong> → <strong>Microserviços</strong></p>
+            </div>
+            
+            <h3>Componentes:</h3>
+            <ul>
+                <li>🌐 <strong>Frontend</strong> - React SPA</li>
+                <li>🔀 <strong>API Gateway</strong> - Kong/Nginx</li>
+                <li>👤 <strong>User Service</strong> - Node.js</li>
+                <li>📦 <strong>Product Service</strong> - Python/FastAPI</li>
+                <li>🛒 <strong>Cart Service</strong> - Go</li>
+                <li>💳 <strong>Payment Service</strong> - Java/Spring</li>
+                <li>📊 <strong>Analytics</strong> - Apache Spark</li>
+            </ul>
+            
+            <h3>Desafios Locais:</h3>
+            <ul>
+                <li>🌍 Latência para região África</li>
+                <li>💰 Otimização de custos</li>
+                <li>📱 Mobile-first approach</li>
+                <li>🔌 Resiliência a falhas de rede</li>
+            </ul>
+            
+            <div class="important">
+                <strong>Solução:</strong> AKS em South Africa North, CDN para assets, cache agressivo, offline-first PWA
+            </div>
+        </div>
+
+        <!-- Slide 30: Projeto Final -->
+        <div class="slide">
+            <div class="slide-number">30 / 35</div>
+            <h1>Projeto Final Integrado</h1>
+            
+            <h3>🎯 Desafio: Deploy Completo DevOps</h3>
+            
+            <h3>Requisitos:</h3>
+            <ol>
+                <li>✅ Código no GitHub (Dia 2)</li>
+                <li>✅ Dockerizar aplicação (Dia 3)</li>
+                <li>✅ Infraestrutura com Terraform (Dia 4)</li>
+                <li>✅ Deploy no Kubernetes (Dia 5)</li>
+            </ol>
+            
+            <h3>Stack Técnica:</h3>
+            <ul>
+                <li>Frontend: React</li>
+                <li>Backend: Node.js/Express</li>
+                <li>Database: PostgreSQL</li>
+                <li>Cache: Redis</li>
+                <li>Message Queue: RabbitMQ</li>
+            </ul>
+            
+            <h3>Pipeline CI/CD:</h3>
+            <ul>
+                <li>GitHub Actions para CI</li>
+                <li>Build e push para ACR</li>
+                <li>ArgoCD para GitOps</li>
+                <li>Monitoring com Prometheus</li>
+            </ul>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Bonus Points:</h4>
+                <ul style="color: white;">
+                    <li>HTTPS com cert-manager</li>
+                    <li>Autoscaling configurado</li>
+                    <li>Backup automatizado</li>
+                    <li>Documentation completa</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 31: Recursos -->
+        <div class="slide">
+            <div class="slide-number">31 / 35</div>
+            <h1>Recursos e Documentação</h1>
+            
+            <h3>📚 Documentação Oficial</h3>
+            <ul>
+                <li>🔗 <strong>Kubernetes:</strong> kubernetes.io/docs</li>
+                <li>🔗 <strong>AKS:</strong> docs.microsoft.com/azure/aks</li>
+                <li>🔗 <strong>Helm:</strong> helm.sh/docs</li>
+                <li>🔗 <strong>kubectl ref:</strong> kubernetes.io/docs/reference/kubectl</li>
+            </ul>
+            
+            <h3>🎓 Certificações</h3>
+            <ul>
+                <li>CKA - Certified Kubernetes Administrator</li>
+                <li>CKAD - Certified Kubernetes Application Developer</li>
+                <li>CKS - Certified Kubernetes Security Specialist</li>
+                <li>AZ-305 - Azure Solutions Architect</li>
+            </ul>
+            
+            <h3>🛠️ Ferramentas Úteis</h3>
+            <ul>
+                <li><strong>k9s</strong> - Terminal UI para Kubernetes</li>
+                <li><strong>Lens</strong> - IDE para Kubernetes</li>
+                <li><strong>kubectx/kubens</strong> - Switch contexts/namespaces</li>
+                <li><strong>kustomize</strong> - Template-free configuration</li>
+                <li><strong>kubescape</strong> - Security scanning</li>
+            </ul>
+        </div>
+
+        <!-- Slide 32: Futuro -->
+        <div class="slide">
+            <div class="slide-number">32 / 35</div>
+            <h1>O Futuro: Cloud Native</h1>
+            
+            <h3>🚀 Tendências Emergentes:</h3>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Tecnologia</th>
+                    <th>Descrição</th>
+                    <th>Use Case</th>
+                </tr>
+                <tr>
+                    <td><strong>Serverless K8s</strong></td>
+                    <td>Knative, KEDA</td>
+                    <td>Scale to zero</td>
+                </tr>
+                <tr>
+                    <td><strong>WebAssembly</strong></td>
+                    <td>WASM/WASI</td>
+                    <td>Portable workloads</td>
+                </tr>
+                <tr>
+                    <td><strong>eBPF</strong></td>
+                    <td>Cilium, Falco</td>
+                    <td>Observability & Security</td>
+                </tr>
+                <tr>
+                    <td><strong>GitOps</strong></td>
+                    <td>Flux, ArgoCD</td>
+                    <td>Declarative everything</td>
+                </tr>
+                <tr>
+                    <td><strong>Edge K8s</strong></td>
+                    <td>K3s, MicroK8s</td>
+                    <td>IoT & Edge computing</td>
+                </tr>
+            </table>
+            
+            <div class="important">
+                <strong>💡 Para Angola:</strong> Edge computing será crucial para reduzir latência e custos de banda. K3s em edge locations pode revolucionar serviços locais.
+            </div>
+        </div>
+
+        <!-- Slide 33: Resumo da Formação -->
+        <div class="slide">
+            <div class="slide-number">33 / 35</div>
+            <h1>Resumo da Formação Completa</h1>
+            
+            <h3>✅ O que Aprendemos em 5 Dias:</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h4>Dia 1 - Azure ☁️</h4>
+                    <ul style="font-size: 1em;">
+                        <li>Cloud Computing fundamentals</li>
+                        <li>Azure services</li>
+                        <li>IaaS, PaaS, SaaS</li>
+                    </ul>
+                    
+                    <h4>Dia 2 - Git/GitHub 🔧</h4>
+                    <ul style="font-size: 1em;">
+                        <li>Version control</li>
+                        <li>Collaboration</li>
+                        <li>CI/CD basics</li>
+                    </ul>
+                    
+                    <h4>Dia 3 - Docker 🐳</h4>
+                    <ul style="font-size: 1em;">
+                        <li>Containerization</li>
+                        <li>Docker Compose</li>
+                        <li>Registry management</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4>Dia 4 - Terraform 🏗️</h4>
+                    <ul style="font-size: 1em;">
+                        <li>Infrastructure as Code</li>
+                        <li>State management</li>
+                        <li>Modules & workspaces</li>
+                    </ul>
+                    
+                    <h4>Dia 5 - Kubernetes ☸️</h4>
+                    <ul style="font-size: 1em;">
+                        <li>Container orchestration</li>
+                        <li>AKS deployment</li>
+                        <li>Helm & GitOps</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight" style="margin-top: 30px;">
+                <h3 style="color: white;">🎯 Vocês agora podem:</h3>
+                <p style="color: white;">Implementar uma solução cloud completa do zero, com CI/CD automatizado, infraestrutura como código, e orquestração de containers!</p>
+            </div>
+        </div>
+
+        <!-- Slide 34: Próximos Passos -->
+        <div class="slide">
+            <div class="slide-number">34 / 35</div>
+            <h1>Próximos Passos</h1>
+            
+            <h3>🎯 Recomendações:</h3>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Curto Prazo (1-3 meses)</h4>
+                <ul style="color: white;">
+                    <li>Praticar com projetos pessoais</li>
+                    <li>Contribuir para open source</li>
+                    <li>Certificação AZ-900 ou CKA</li>
+                    <li>Blog sobre aprendizados</li>
+                </ul>
+            </div>
+            
+            <div class="highlight" style="background: linear-gradient(135deg, #1e88e5, #326ce5);">
+                <h4 style="color: white;">Médio Prazo (3-6 meses)</h4>
+                <ul style="color: white;">
+                    <li>Implementar em produção</li>
+                    <li>Explorar service mesh</li>
+                    <li>Aprofundar em security</li>
+                    <li>Certificações avançadas</li>
+                </ul>
+            </div>
+            
+            <div class="highlight">
+                <h4 style="color: white;">Longo Prazo (6+ meses)</h4>
+                <ul style="color: white;">
+                    <li>Arquitetura de soluções</li>
+                    <li>Consultoria e mentoria</li>
+                    <li>Contribuir para comunidade Angola</li>
+                    <li>Liderar transformação digital</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 35: Fim -->
+        <div class="slide">
+            <div class="slide-number">35 / 35</div>
+            <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                <div class="icon" style="font-size: 5em;">🎉</div>
+                <h1 style="border: none;">Parabéns!</h1>
+                <h2>Vocês são agora Cloud Engineers! 🚀</h2>
+                
+                <div style="margin-top: 40px;">
+                    <p style="font-size: 1.3em;">Foi uma honra partilhar esta jornada convosco! Espero que isso seja só o começo!</p>
+                    <p style="font-size: 1.2em; margin-top: 20px;">Continuem aprendendo, construindo e inovando.</p>
+                </div>
+                
+                <div class="highlight" style="margin-top: 40px;">
+                    <p style="color: white;">
+                        Para falar comigo: <br><br>
+                        📧 Contacto: <strong>andersonleite@outlook.com</strong><br>
+                        💻 GitHub: <strong>github.com/vakaobr</strong><br>
+                        💼 LinkedIn: <strong>linkedin.com/in/andersonleite</strong><br>
+                    </p>
+                </div>
+                
+                <p style="margin-top: 40px; font-size: 1.5em; color: #326ce5;">
+                    <strong>O futuro é Cloud Native! ☁️</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+        <button onclick="previousSlide()">← Anterior</button>
+        <button onclick="nextSlide()">Próximo →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+    </script>
+</body>
+</html>
